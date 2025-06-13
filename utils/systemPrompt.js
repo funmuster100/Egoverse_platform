@@ -1,3 +1,4 @@
+
 export function generateSystemPrompt(profile) {
   const {
     name,
