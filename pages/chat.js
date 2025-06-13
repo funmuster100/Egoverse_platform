@@ -1,16 +1,20 @@
-
 import { useEffect, useState } from "react";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState({
+    name: "Max",
+    job: "Coach",
+    style: "direkt",
+    phrase: "Mach einfach!",
+    values: "Ehrlichkeit, Freiheit",
+    humor: "trocken",
+    tone: "locker",
+    hobbies: "Tennis, Radfahren",
+    relationships: "verheiratet"
+  });
   const [isTyping, setIsTyping] = useState(false);
-
-  useEffect(() => {
-    const p = localStorage.getItem("ego_profile");
-    if (p) setProfile(JSON.parse(p));
-  }, []);
 
   const send = async () => {
     if (!input.trim()) return;

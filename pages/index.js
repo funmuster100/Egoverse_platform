@@ -1,11 +1,9 @@
-
 export default function Home() {
   return (
-    <div style={{ color: 'white', background: '#111', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div>
-        <h1>Willkommen bei EgoVerse™</h1>
-        <p><a href="/chat" style={{ color: '#0f0' }}>Starte deinen KI-Zwilling</a></p>
-      </div>
+    <div style={{ padding: 50, background: '#0d0d0d', color: '#eee', height: '100vh' }}>
+      <h1>Willkommen bei EgoVerse</h1>
+      <p>Dein digitaler Klon wartet.</p>
+      <a href="/chat" style={{ color: '#00ff88' }}>Zum Chat</a>
     </div>
   );
 }

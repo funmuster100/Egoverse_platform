@@ -1,7 +1,9 @@
-
 import OpenAI from "openai";
+import { generateSystemPrompt } from "@/utils/systemPrompt";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export default async function handler(req, res) {
   const { message, profile } = req.body;
@@ -18,29 +20,12 @@ export default async function handler(req, res) {
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
-      ]
+      ],
     });
 
     res.status(200).json({ reply: completion.choices[0].message.content });
   } catch (error) {
-    res.status(500).json({ error: "Fehler beim GPT-Abruf", details: error.message });
+    console.error("OpenAI Error:", error);
+    res.status(500).json({ error: "Fehler beim GPT-Abruf.", details: error.message });
   }
-}
-
-function generateSystemPrompt(profile) {
-  const {
-    name, job, style, phrase, values,
-    humor, tone, hobbies, relationships
-  } = profile || {};
-
-  return \`Du bist \${name || "eine Person"} mit einem besonderen Kommunikationsstil.
-Dein Beruf oder Fokus: \${job || "nicht definiert"}
-Kommunikationsstil: \${style || "neutral"}
-Du sagst oft: "\${phrase || "..."}"
-Werte: \${values || "nicht angegeben"}
-Humor: \${humor || "unbekannt"}
-Tonfall: \${tone || "ausgeglichen"}
-Freizeit: \${hobbies || "nicht angegeben"}
-Beziehungen: \${relationships || "keine Angabe"}
-Antworte stets wie diese Person – klar, menschlich und direkt.\`;
 }
