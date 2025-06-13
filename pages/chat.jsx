@@ -1,15 +1,20 @@
 
 import { useEffect, useState } from "react";
 import AvatarUpload from "../components/AvatarUpload";
+
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [avatar, setAvatar] = useState(null);
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
     if (p) setProfile(JSON.parse(p));
+
+    const a = localStorage.getItem("ego_avatar");
+    if (a) setAvatar(a);
   }, []);
 
   const send = async () => {
@@ -30,6 +35,21 @@ export default function Chat() {
 
   return (
     <div style={{ background: "#0d0d0d", color: "#eee", height: "100vh", display: "flex", flexDirection: "column" }}>
+      
+      {/* Avatar & Upload */}
+      <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: "1px solid #222" }}>
+        {avatar ? (
+          <img src={avatar} alt="avatar" style={{ width: 48, height: 48, borderRadius: "50%", marginRight: 12 }} />
+        ) : (
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#444", marginRight: 12 }} />
+        )}
+        <AvatarUpload onUpload={(base64) => {
+          setAvatar(base64);
+          localStorage.setItem("ego_avatar", base64);
+        }} />
+      </div>
+
+      {/* Chatverlauf */}
       <div style={{ flex: 1, padding: 16, overflowY: "auto" }}>
         {messages.map((m, i) => (
           <div key={i} style={{ textAlign: m.role === "user" ? "right" : "left", marginBottom: 10 }}>
@@ -44,8 +64,10 @@ export default function Chat() {
             }}>{m.content}</div>
           </div>
         ))}
-        {isTyping && <p style={{ fontStyle: "italic", color: "#888" }}>tippt…</p>}
+        {isTyping && <p style={{ fontStyle: "italic", color: "#888" }}>💬 tippt...</p>}
       </div>
+
+      {/* Eingabefeld */}
       <div style={{ padding: 16, display: "flex", borderTop: "1px solid #333" }}>
         <input
           value={input}
