@@ -48,7 +48,7 @@ export default function Onboarding() {
       setStep(step + 1);
     } else {
       localStorage.setItem("ego_profile", JSON.stringify(answers));
-      router.push("/chat");
+      router.push("/summary");
     }
   };
 
