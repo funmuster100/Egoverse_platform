@@ -1,21 +1,33 @@
+import { Configuration, OpenAIApi } from "openai";
 
-import OpenAI from "openai";
-import { generatePrompt } from "../../utils/systemPrompt.js";
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
-  const { message, profile } = req.body;
-  const prompt = generatePrompt(profile || {});
+  const { message, prompt } = req.body;
+
+  if (!configuration.apiKey) {
+    return res.status(500).json({ error: "API key fehlt." });
+  }
+
   try {
-    const chat = await openai.chat.completions.create({
-      model: "gpt-4",
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: message }
-      ]
+      ],
     });
-    res.status(200).json({ reply: chat.choices[0].message.content });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    res.status(200).json({ reply: completion.data.choices[0].message.content });
+  } catch (error) {
+    console.error("OpenAI Error:", error.response?.data || error.message);
+    res.status(500).json({
+      error: "Fehler beim GPT-Abruf.",
+      details: error.response?.data || error.message,
+    });
   }
 }
