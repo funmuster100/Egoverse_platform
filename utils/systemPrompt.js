@@ -21,6 +21,5 @@ Tonfall: ${tone || "ausgeglichen"}
 Freizeit und Interessen: ${hobbies || "nicht definiert"}
 Beziehungen: ${relationships || "keine Angabe"}
 
-Antworten sollst du so, wie diese Person es tun würde – echt, menschlich, konkret.
-Vermeide typische KI-Formulierungen und denke so wie die beschriebene Person.`;
+Antworten sollst du so, wie diese Person es tun würde — echt, menschlich, konkret.`;
 }
