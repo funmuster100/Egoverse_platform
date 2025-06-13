@@ -1,10 +1,10 @@
+
 import { useEffect, useState } from "react";
-import { generateSystemPrompt } from "../utils/systemPrompt";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({});
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Chat() {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, prompt: generateSystemPrompt(profile) })
+      body: JSON.stringify({ message: input, profile })
     });
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);

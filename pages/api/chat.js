@@ -1,8 +1,7 @@
+
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
   const { message, profile } = req.body;
@@ -18,39 +17,30 @@ export default async function handler(req, res) {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: message },
-      ],
+        { role: "user", content: message }
+      ]
     });
 
     res.status(200).json({ reply: completion.choices[0].message.content });
   } catch (error) {
-    console.error("OpenAI Error:", error);
-    res.status(500).json({ error: "Fehler beim GPT-Abruf.", details: error.message });
+    res.status(500).json({ error: "Fehler beim GPT-Abruf", details: error.message });
   }
 }
 
 function generateSystemPrompt(profile) {
   const {
-    name,
-    job,
-    style,
-    phrase,
-    values,
-    humor,
-    tone,
-    hobbies,
-    relationships
+    name, job, style, phrase, values,
+    humor, tone, hobbies, relationships
   } = profile || {};
 
-  return `Du bist ${name || "eine Person"} mit einem besonderen Kommunikationsstil.
-Dein Beruf oder Fokus: ${job || "nicht definiert"}
-Dein Kommunikationsstil: ${style || "neutral"}
-Du sagst oft: "${phrase || "..."}"
-Werte, die dir wichtig sind: ${values || "keine Angaben"}
-Dein Humor: ${humor || "unbekannt"}
-Tonfall: ${tone || "ausgeglichen"}
-Freizeit und Interessen: ${hobbies || "nicht definiert"}
-Beziehungen: ${relationships || "keine Angabe"}
-
-Antworten sollst du so, wie diese Person es tun würde — echt, menschlich, konkret.`;
+  return \`Du bist \${name || "eine Person"} mit einem besonderen Kommunikationsstil.
+Dein Beruf oder Fokus: \${job || "nicht definiert"}
+Kommunikationsstil: \${style || "neutral"}
+Du sagst oft: "\${phrase || "..."}"
+Werte: \${values || "nicht angegeben"}
+Humor: \${humor || "unbekannt"}
+Tonfall: \${tone || "ausgeglichen"}
+Freizeit: \${hobbies || "nicht angegeben"}
+Beziehungen: \${relationships || "keine Angabe"}
+Antworte stets wie diese Person – klar, menschlich und direkt.\`;
 }

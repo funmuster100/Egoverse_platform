@@ -1,5 +1,6 @@
+
 {
-  "name": "egoverse",
+  "name": "egoverse_v4",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
