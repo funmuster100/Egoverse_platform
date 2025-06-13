@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 const categories = [
   {
@@ -43,7 +44,7 @@ const categories = [
 export default function OnboardingMulti() {
   const [answers, setAnswers] = useState({});
   const [step, setStep] = useState(0);
-
+  const router = useRouter();
   const currentCategory = categories[step];
 
   const handleAnswer = (question, answer) => {
@@ -61,7 +62,7 @@ export default function OnboardingMulti() {
       setStep(step + 1);
     } else {
       localStorage.setItem("ego_profile", JSON.stringify(answers));
-      window.location.href = "/chat";
+      router.push("/chat");
     }
   };
 
