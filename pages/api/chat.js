@@ -1,5 +1,3 @@
-
-import { generateSystemPrompt } from "../../utils/systemPrompt";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -20,7 +18,7 @@ export default async function handler(req, res) {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: message }
+        { role: "user", content: message },
       ],
     });
 
@@ -29,4 +27,30 @@ export default async function handler(req, res) {
     console.error("OpenAI Error:", error);
     res.status(500).json({ error: "Fehler beim GPT-Abruf.", details: error.message });
   }
+}
+
+function generateSystemPrompt(profile) {
+  const {
+    name,
+    job,
+    style,
+    phrase,
+    values,
+    humor,
+    tone,
+    hobbies,
+    relationships
+  } = profile || {};
+
+  return `Du bist ${name || "eine Person"} mit einem besonderen Kommunikationsstil.
+Dein Beruf oder Fokus: ${job || "nicht definiert"}
+Dein Kommunikationsstil: ${style || "neutral"}
+Du sagst oft: "${phrase || "..."}"
+Werte, die dir wichtig sind: ${values || "keine Angaben"}
+Dein Humor: ${humor || "unbekannt"}
+Tonfall: ${tone || "ausgeglichen"}
+Freizeit und Interessen: ${hobbies || "nicht definiert"}
+Beziehungen: ${relationships || "keine Angabe"}
+
+Antworten sollst du so, wie diese Person es tun würde — echt, menschlich, konkret.`;
 }
