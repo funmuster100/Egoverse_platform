@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-
+import AvatarUpload from "../components/AvatarUpload";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
