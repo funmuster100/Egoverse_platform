@@ -192,4 +192,56 @@
   .chat-messages {
     padding: 12px 10px;
   }
+  /* ========== Chat-Header ========== */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(20, 20, 20, 0.8);
+  border-bottom: 1px solid #2a2a2a;
+  position: relative;
+  z-index: 2;
+}
+
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-header-left .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 4px rgba(0, 255, 170, 0.3);
+}
+
+.chat-header-left .info {
+  display: flex;
+  flex-direction: column;
+  color: #eee;
+}
+
+.chat-header-left .info .name {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.chat-header-left .info .status {
+  font-size: 0.75rem;
+  color: #00ff88;
+}
+
+.chat-header-right {
+  font-size: 1.25rem;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.chat-header-right:hover {
+  color: #fff;
+}
 }
