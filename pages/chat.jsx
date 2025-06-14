@@ -1,5 +1,7 @@
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import "../styles/chat.css"; // Stelle sicher, dass dies korrekt verlinkt ist
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -18,13 +20,11 @@ export default function Chat() {
     setMessages(updated);
     setInput("");
     setIsTyping(true);
-
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input, profile }),
     });
-
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
@@ -34,19 +34,18 @@ export default function Chat() {
     <div className="chat-container">
       <div className="chat-messages">
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`bubble-container ${m.role === "user" ? "user" : "bot"}`}
-          >
-            <img
+          <div key={i} className={`bubble-container ${m.role}`}>
+            <Image
+              src={`/avatars/${m.role === "user" ? "user.png" : "bot.png"}`}
+              alt={`${m.role}-avatar`}
+              width={40}
+              height={40}
               className="avatar"
-              src={m.role === "user" ? "/avatars/user.png" : "/avatars/bot.png"}
-              alt={m.role}
             />
             <div className="bubble">{m.content}</div>
           </div>
         ))}
-        {isTyping && <p className="typing">Der Bot tippt…</p>}
+        {isTyping && <p className="typing">tippt…</p>}
       </div>
       <div className="chat-input">
         <input
