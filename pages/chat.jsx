@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import "../styles/chat.css"; // Stelle sicher, dass dies korrekt verlinkt ist
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
