@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import "../styles/chat.css"; // wenn du externes CSS nutzt
+import "../styles/Chat.css"; // 👈 richtiger Pfad zur CSS-Datei
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -20,29 +20,32 @@ export default function Chat() {
     setInput("");
     setIsTyping(true);
 
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input, profile })
-      });
-      const data = await res.json();
-      setMessages([...updated, { role: "assistant", content: data.reply }]);
-    } catch (err) {
-      setMessages([...updated, { role: "assistant", content: "Fehler bei der Antwort." }]);
-    }
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input, profile }),
+    });
+    const data = await res.json();
+
+    setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
   };
 
   return (
-    <div className="chat-wrapper">
+    <div className="chat-container">
       <div className="chat-messages">
         {messages.map((m, i) => (
-          <div key={i} className={`message ${m.role}`}>
-            <div className="bubble">{m.content}</div>
+          <div key={i} className={`message-row ${m.role}`}>
+            {m.role === "assistant" && (
+              <img src="/bot-avatar.png" alt="Bot" className="avatar" />
+            )}
+            <div className={`bubble ${m.role}`}>{m.content}</div>
+            {m.role === "user" && (
+              <img src="/user-avatar.png" alt="User" className="avatar" />
+            )}
           </div>
         ))}
-        {isTyping && <div className="message assistant"><div className="bubble typing">Tippt…</div></div>}
+        {isTyping && <p className="typing">tippt...</p>}
       </div>
       <div className="chat-input">
         <input
