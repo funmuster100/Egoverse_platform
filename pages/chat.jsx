@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import "../styles/chat.css"; // 👈 richtiger Pfad zur CSS-Datei
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -25,8 +24,8 @@ export default function Chat() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input, profile }),
     });
-    const data = await res.json();
 
+    const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
   };
@@ -35,17 +34,19 @@ export default function Chat() {
     <div className="chat-container">
       <div className="chat-messages">
         {messages.map((m, i) => (
-          <div key={i} className={`message-row ${m.role}`}>
-            {m.role === "assistant" && (
-              <img src="/bot-avatar.png" alt="Bot" className="avatar" />
-            )}
-            <div className={`bubble ${m.role}`}>{m.content}</div>
-            {m.role === "user" && (
-              <img src="/user-avatar.png" alt="User" className="avatar" />
-            )}
+          <div
+            key={i}
+            className={`bubble-container ${m.role === "user" ? "user" : "bot"}`}
+          >
+            <img
+              className="avatar"
+              src={m.role === "user" ? "/avatars/user.png" : "/avatars/bot.png"}
+              alt={m.role}
+            />
+            <div className="bubble">{m.content}</div>
           </div>
         ))}
-        {isTyping && <p className="typing">tippt...</p>}
+        {isTyping && <p className="typing">Der Bot tippt…</p>}
       </div>
       <div className="chat-input">
         <input
