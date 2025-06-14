@@ -31,6 +31,27 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
+      {/* 🧠 Chat-Header */}
+      <div className="chat-header">
+        <div className="chat-header-left">
+          <Image
+            src="/avatars/bot.png"
+            alt="Bot Avatar"
+            width={36}
+            height={36}
+            className="avatar"
+          />
+          <div>
+            <div className="chat-title">Du (Ego)</div>
+            <div className="chat-status">
+              <span className="status-dot" /> Online
+            </div>
+          </div>
+        </div>
+        <button className="chat-settings-btn">⚙️</button>
+      </div>
+
+      {/* 💬 Nachrichtenverlauf */}
       <div className="chat-messages">
         {messages.map((m, i) => (
           <div key={i} className={`bubble-container ${m.role}`}>
@@ -46,6 +67,8 @@ export default function Chat() {
         ))}
         {isTyping && <p className="typing">tippt…</p>}
       </div>
+
+      {/* ✍️ Eingabefeld */}
       <div className="chat-input">
         <input
           value={input}
