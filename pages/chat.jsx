@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import "../styles/Chat.css"; // 👈 richtiger Pfad zur CSS-Datei
+import "../styles/chat.css"; // 👈 richtiger Pfad zur CSS-Datei
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
