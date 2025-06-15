@@ -34,7 +34,7 @@ export default function Chat() {
       if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
       return "/avatars/user.png";
     }
-    return "/avatars/bot.png";
+    return "/avatars/bot.PNG";
   };
 
   const handleAvatarUpload = (e) => {
