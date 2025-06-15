@@ -29,6 +29,16 @@ export default function Chat() {
     setIsTyping(false);
   };
 
+  const getAvatar = (role) => {
+    if (role === "user") {
+      if (profile?.avatar?.startsWith("data:image")) {
+        return profile.avatar; // base64
+      }
+      return "/avatars/user.png"; // fallback
+    }
+    return "/avatars/bot.png";
+  };
+
   return (
     <div className="chat-container">
       {/* 🧠 Chat-Header */}
@@ -56,7 +66,7 @@ export default function Chat() {
         {messages.map((m, i) => (
           <div key={i} className={`bubble-container ${m.role}`}>
             <Image
-              src={`/avatars/${m.role === "user" ? "user.png" : "bot.png"}`}
+              src={getAvatar(m.role)}
               alt={`${m.role}-avatar`}
               width={40}
               height={40}
