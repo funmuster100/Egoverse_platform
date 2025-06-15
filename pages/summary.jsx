@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 export default function Summary() {
   const [profile, setProfile] = useState(null);
@@ -7,8 +8,12 @@ export default function Summary() {
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
+    const avatar = localStorage.getItem("ego_avatar");
     if (!p) return router.push("/onboarding-multi");
-    setProfile(JSON.parse(p));
+
+    const parsed = JSON.parse(p);
+    if (avatar) parsed.avatar = avatar;
+    setProfile(parsed);
   }, []);
 
   if (!profile) return <div style={styles.container}>Lade Profil...</div>;
@@ -16,60 +21,105 @@ export default function Summary() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <div style={styles.avatar}>🧠</div>
-        <h2 style={styles.name}>Hallo {profile.name || "unbekannte Person"}</h2>
-        <p><strong>Beruf:</strong> {profile.job || "nicht definiert"}</p>
-        <p><strong>Kommunikationsstil:</strong> {profile.style || "neutral"}</p>
-        <p><strong>Typischer Satz:</strong> “{profile.phrase || "..."}”</p>
-        <p><strong>Werte:</strong> {profile.values || "–"}</p>
-        <p><strong>Humor:</strong> {profile.humor || "–"}</p>
-        <p><strong>Tonfall:</strong> {profile.tone || "–"}</p>
-        <p><strong>Hobbys:</strong> {profile.hobbies || "–"}</p>
-        <p><strong>Beziehungen:</strong> {profile.relationships || "–"}</p>
+        {profile.avatar ? (
+          <Image
+            src={profile.avatar}
+            alt="Avatar"
+            width={80}
+            height={80}
+            style={styles.avatarImage}
+          />
+        ) : (
+          <div style={styles.avatarFallback}>🧠</div>
+        )}
+
+        <h2 style={styles.name}>Willkommen, {profile.name || "unbekannte Person"}</h2>
+        <ul style={styles.infoList}>
+          <Info label="Beruf" value={profile.job} />
+          <Info label="Kommunikationsstil" value={profile.style} />
+          <Info label="Typischer Satz" value={`„${profile.phrase}“`} />
+          <Info label="Werte" value={profile.values} />
+          <Info label="Humor" value={profile.humor} />
+          <Info label="Tonfall" value={profile.tone} />
+          <Info label="Hobbys" value={profile.hobbies} />
+          <Info label="Beziehungen" value={profile.relationships} />
+        </ul>
+
         <button style={styles.button} onClick={() => router.push("/chat")}>
-          Weiter zum Chat
+          Starte dein Gespräch
         </button>
       </div>
     </div>
   );
 }
 
+function Info({ label, value }) {
+  return (
+    <li style={styles.infoItem}>
+      <strong style={styles.label}>{label}:</strong> {value || "–"}
+    </li>
+  );
+}
+
 const styles = {
   container: {
-    background: "#111",
+    background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
     color: "#eee",
     minHeight: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 24,
   },
   card: {
-    background: "#1a1a1a",
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
     borderRadius: 16,
-    padding: 24,
+    padding: 32,
     width: "100%",
-    maxWidth: 500,
-    boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+    maxWidth: 520,
+    backdropFilter: "blur(8px)",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
   },
-  avatar: {
-    fontSize: 48,
+  avatarImage: {
+    borderRadius: "50%",
+    marginBottom: 16,
+    objectFit: "cover",
+  },
+  avatarFallback: {
+    fontSize: 56,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 16,
   },
   name: {
     textAlign: "center",
-    marginBottom: 20,
+    fontSize: "1.6rem",
+    marginBottom: 24,
+  },
+  infoList: {
+    listStyle: "none",
+    padding: 0,
+    margin: 0,
+  },
+  infoItem: {
+    marginBottom: 10,
+    lineHeight: 1.4,
+  },
+  label: {
+    color: "#00ff88",
   },
   button: {
-    background: "#00ff88",
+    marginTop: 24,
+    background: "linear-gradient(to right, #00ffcc, #00ff88)",
     color: "#111",
-    padding: "10px 20px",
     border: "none",
-    borderRadius: 8,
+    borderRadius: 10,
+    padding: "14px 20px",
+    fontSize: "1rem",
     fontWeight: "bold",
     cursor: "pointer",
-    marginTop: 20,
     width: "100%",
+    boxShadow: "0 0 12px rgba(0,255,170,0.3)",
+    transition: "transform 0.2s ease-in-out",
   },
 };
