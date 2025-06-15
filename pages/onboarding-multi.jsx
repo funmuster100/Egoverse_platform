@@ -1,30 +1,29 @@
 
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
 
 const questions = [
-  { key: "name", label: "Wie heißt du?" },
-  { key: "age", label: "Wie alt bist du?" },
-  { key: "job", label: "Was machst du beruflich?" },
-  { key: "style", label: "Wie würdest du deinen Kommunikationsstil beschreiben?" },
-  { key: "phrase", label: "Gibt es einen Satz, den du oft sagst?" },
-  { key: "values", label: "Was sind dir im Leben besonders wichtig?" },
-  { key: "humor", label: "Wie ist dein Humor?" },
-  { key: "tone", label: "Wie ist dein Tonfall in Gesprächen?" },
-  { key: "hobbies", label: "Was machst du gerne in deiner Freizeit?" },
-  { key: "relationships", label: "Wie sieht dein Beziehungsleben aus?" },
-  { key: "identity", label: "Wie würdest du dich selbst in drei Worten beschreiben?" },
-  { key: "change_event", label: "Gab es ein Ereignis, das dich besonders geprägt hat?" },
-  { key: "core_belief", label: "Gibt es einen Leitsatz, an dem du dich orientierst?" },
-  { key: "calm", label: "Was bringt dich innerlich zur Ruhe?" },
-  { key: "vulnerability", label: "Wann fühlst du dich verletzlich?" },
-  { key: "conflict", label: "Wie gehst du mit inneren Konflikten um?" },
-  { key: "child_memory", label: "Was ist deine stärkste Erinnerung aus der Kindheit?" },
-  { key: "parent_expectation", label: "Was wollten deine Eltern, dass du wirst?" },
-  { key: "future_self", label: "Was möchtest du in 10 Jahren über dich sagen können?" },
-  { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?" }
+  { key: "name", label: "Wie heißt du?", tip: "Du kannst auch einen Spitznamen angeben." },
+  { key: "age", label: "Wie alt bist du?", tip: "Dein Alter hilft deinem Ego, dich besser zu spiegeln." },
+  { key: "job", label: "Was machst du beruflich?", tip: "Stell dir vor, du erklärst es einem Kind." },
+  { key: "style", label: "Wie würdest du deinen Kommunikationsstil beschreiben?", tip: "Kurz, direkt oder blumig und verspielt?" },
+  { key: "phrase", label: "Gibt es einen Satz, den du oft sagst?", tip: "Vielleicht ein typischer Spruch von dir?" },
+  { key: "values", label: "Was sind dir im Leben besonders wichtig?", tip: "Werte wie Ehrlichkeit, Freiheit oder Familie?" },
+  { key: "humor", label: "Wie ist dein Humor?", tip: "Ironisch, albern, schwarz oder ganz trocken?" },
+  { key: "tone", label: "Wie ist dein Tonfall in Gesprächen?", tip: "Eher ruhig, energisch oder freundlich-direkt?" },
+  { key: "hobbies", label: "Was machst du gerne in deiner Freizeit?", tip: "Denk an Dinge, die dich wirklich erfüllen." },
+  { key: "relationships", label: "Wie sieht dein Beziehungsleben aus?", tip: "Offen, ehrlich – so viel du magst." },
+  { key: "identity", label: "Wie würdest du dich selbst in drei Worten beschreiben?", tip: "Intuitiv antworten – was kommt dir zuerst?" },
+  { key: "change_event", label: "Gab es ein Ereignis, das dich besonders geprägt hat?", tip: "Ein Wendepunkt in deinem Leben?" },
+  { key: "core_belief", label: "Gibt es einen Leitsatz, an dem du dich orientierst?", tip: "Ein Satz, der dich durchs Leben begleitet?" },
+  { key: "calm", label: "Was bringt dich innerlich zur Ruhe?", tip: "Vielleicht ein Ort, ein Gedanke oder ein Mensch?" },
+  { key: "vulnerability", label: "Wann fühlst du dich verletzlich?", tip: "Keine falsche Scheu – sei ehrlich zu dir." },
+  { key: "conflict", label: "Wie gehst du mit inneren Konflikten um?", tip: "Was passiert, wenn du mit dir haderst?" },
+  { key: "child_memory", label: "Was ist deine stärkste Erinnerung aus der Kindheit?", tip: "Schließ kurz die Augen und spür hinein." },
+  { key: "parent_expectation", label: "Was wollten deine Eltern, dass du wirst?", tip: "Und wie fühlt sich das heute für dich an?" },
+  { key: "future_self", label: "Was möchtest du in 10 Jahren über dich sagen können?", tip: "Schreib’s wie eine kurze Vision." },
+  { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?", tip: "Was sollen Menschen mit dir verbinden?" }
 ];
 
 export default function Onboarding() {
@@ -52,6 +51,7 @@ export default function Onboarding() {
   };
 
   const isAvatarStep = step === questions.length;
+  const currentQuestion = questions[step];
 
   return (
     <div style={{
@@ -83,9 +83,9 @@ export default function Onboarding() {
           </>
         ) : (
           <>
-            <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{questions[step].label}</h2>
+            <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{currentQuestion.label}</h2>
             <input
-              value={answers[questions[step].key] || ""}
+              value={answers[currentQuestion.key] || ""}
               onChange={handleChange}
               onKeyDown={(e) => e.key === "Enter" && next()}
               style={{
@@ -96,11 +96,16 @@ export default function Onboarding() {
                 border: "1px solid #333",
                 color: "#eee",
                 borderRadius: "8px",
-                marginBottom: "1.5rem",
+                marginBottom: "0.8rem",
                 outline: "none"
               }}
               autoFocus
             />
+            {currentQuestion.tip && (
+              <p style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "1.5rem" }}>
+                {currentQuestion.tip}
+              </p>
+            )}
           </>
         )}
 
