@@ -33,7 +33,7 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(null);
 
   const handleChange = (e) => {
-    setAnswers({ ...answers, [questions[step].key]: e.target.value });
+    setAnswers({ ...answers, [questions[step]?.key]: e.target.value });
   };
 
   const next = () => {
@@ -54,53 +54,70 @@ export default function Onboarding() {
 
   return (
     <div style={{
-      background: "#0d0d0d",
-      color: "#eee",
       height: "100vh",
+      background: "linear-gradient(135deg, #0f0f0f, #1a1a1a)",
+      color: "#f4f4f4",
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
-      padding: 20
+      padding: "2rem",
+      textAlign: "center",
+      fontFamily: "'Segoe UI', sans-serif"
     }}>
-      {isAvatarStep ? (
-        <>
-          <h2 style={{ marginBottom: 20 }}>Wähle ein Avatar-Bild</h2>
-          <AvatarUpload onAvatarSelect={setAvatar} />
-        </>
-      ) : (
-        <>
-          <h2 style={{ marginBottom: 20 }}>{questions[step].label}</h2>
-          <input
-            value={answers[questions[step].key] || ""}
-            onChange={handleChange}
-            onKeyDown={(e) => e.key === "Enter" && next()}
-            style={{
-              padding: 12,
-              borderRadius: 6,
-              border: "none",
-              background: "#222",
-              color: "#eee",
-              width: "100%",
-              maxWidth: 500
-            }}
-            autoFocus
-          />
-        </>
-      )}
-      <button
-        onClick={next}
-        style={{
-          marginTop: 20,
-          padding: "10px 20px",
-          background: "#00ff88",
-          color: "#111",
-          border: "none",
-          borderRadius: 6
-        }}
-      >
-        {isAvatarStep ? "Fertig" : "Weiter"}
-      </button>
+      <div style={{ maxWidth: 600, width: "100%" }}>
+        {isAvatarStep ? (
+          <>
+            <h2 style={{ marginBottom: "1.5rem", fontSize: "1.75rem" }}>
+              Wähle ein Avatar-Bild
+            </h2>
+            <AvatarUpload onAvatarSelect={setAvatar} />
+          </>
+        ) : (
+          <>
+            <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+              {questions[step].label}
+            </h2>
+            <input
+              type="text"
+              value={answers[questions[step].key] || ""}
+              onChange={handleChange}
+              onKeyDown={(e) => e.key === "Enter" && next()}
+              style={{
+                width: "100%",
+                padding: "14px",
+                borderRadius: "8px",
+                background: "#222",
+                border: "none",
+                color: "#eee",
+                fontSize: "1rem",
+                outline: "none",
+              }}
+              autoFocus
+            />
+          </>
+        )}
+        <button
+          onClick={next}
+          style={{
+            marginTop: "2rem",
+            padding: "12px 24px",
+            background: "linear-gradient(to right, #00ffcc, #00ff88)",
+            color: "#111",
+            fontWeight: "bold",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            cursor: "pointer",
+            boxShadow: "0 0 12px rgba(0, 255, 170, 0.3)",
+            transition: "transform 0.2s ease-in-out",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          {isAvatarStep ? "Fertig" : "Weiter"}
+        </button>
+      </div>
     </div>
   );
 }
