@@ -65,8 +65,13 @@ export default function Chat() {
             <div className="bubble">{m.content}</div>
           </div>
         ))}
-        {isTyping && <p className="typing">tippt…</p>}
-      </div>
+        {isTyping && (
+  <div className="typing-bubble">
+    <div className="dot" />
+    <div className="dot" />
+    <div className="dot" />
+  </div>
+)}
 
       {/* ✍️ Eingabefeld */}
       <div className="chat-input">
