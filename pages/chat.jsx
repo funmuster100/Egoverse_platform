@@ -66,12 +66,13 @@ export default function Chat() {
           </div>
         ))}
         {isTyping && (
-  <div className="typing-bubble">
-    <div className="dot" />
-    <div className="dot" />
-    <div className="dot" />
-  </div>
-)}
+          <div className="typing-bubble">
+            <div className="dot" />
+            <div className="dot" />
+            <div className="dot" />
+          </div>
+        )}
+      </div>
 
       {/* ✍️ Eingabefeld */}
       <div className="chat-input">
