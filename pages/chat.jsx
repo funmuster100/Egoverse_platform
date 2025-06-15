@@ -31,12 +31,22 @@ export default function Chat() {
 
   const getAvatar = (role) => {
     if (role === "user") {
-      if (profile?.avatar?.startsWith("data:image")) {
-        return profile.avatar; // base64
-      }
-      return "/avatars/user.png"; // fallback
+      if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
+      return "/avatars/user.png";
     }
     return "/avatars/bot.png";
+  };
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const updatedProfile = { ...profile, avatar: reader.result };
+      setProfile(updatedProfile);
+      localStorage.setItem("ego_profile", JSON.stringify(updatedProfile));
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -44,12 +54,21 @@ export default function Chat() {
       {/* 🧠 Chat-Header */}
       <div className="chat-header">
         <div className="chat-header-left">
-          <Image
-            src="/avatars/bot.png"
-            alt="Bot Avatar"
-            width={36}
-            height={36}
-            className="avatar"
+          <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
+            <Image
+              src={getAvatar("user")}
+              alt="User Avatar"
+              width={36}
+              height={36}
+              className="avatar"
+            />
+          </label>
+          <input
+            type="file"
+            id="avatar-upload"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleAvatarUpload}
           />
           <div>
             <div className="chat-title">Du (Ego)</div>
