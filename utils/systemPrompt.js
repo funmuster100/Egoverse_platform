@@ -1,5 +1,9 @@
 
-function generateSystemPrompt(profile, mode = "default", lang = "de") {
+export function generateSystemPrompt(profile, mode = "default", lang = "de") {
+  if (!profile || Object.keys(profile).length === 0) {
+    return `Du bist ein digitaler Zwilling – du antwortest menschlich, emotional, klar und ohne KI-Floskeln. Sprich natürlich und individuell.`;
+  }
+
   const {
     name,
     job,
@@ -24,8 +28,7 @@ function generateSystemPrompt(profile, mode = "default", lang = "de") {
   const systemInstruction = modes[mode] || modes.default;
 
   if (lang === "en") {
-    // Placeholder für spätere Internationalisierung
-    return `You are ${name || "someone"}...`; // TODO: Englische Version bauen
+    return `You are ${name || "someone"} with human tone and personality.`;
   }
 
   return `
