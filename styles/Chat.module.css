@@ -1,24 +1,4 @@
 
-:root {
-  --bg: #f9f9f9;
-  --text: #222;
-  --primary: #4a90e2;
-  --bubble-user: #d7ecff;
-  --bubble-bot: #ffffff;
-  --border: #ddd;
-  --accent: #f0f4f8;
-}
-
-[data-theme="dark"] {
-  --bg: #1e1e1e;
-  --text: #f5f5f5;
-  --primary: #4a90e2;
-  --bubble-user: #2a4365;
-  --bubble-bot: #2d2d2d;
-  --border: #333;
-  --accent: #2b2b2b;
-}
-
 .chat-container {
   display: flex;
   flex-direction: column;
