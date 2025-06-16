@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import styles from "../styles/Chat.module.css"; // 👈 CSS-Module importiert
+import styles from "../styles/Chat.module.css";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
@@ -80,10 +80,31 @@ export default function Chat() {
             </div>
           </div>
         </div>
-        <button className="chat-settings-btn">⚙️</button>
+
+        {/* Header Right: Theme & Settings */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button
+            onClick={() => {
+              const html = document.documentElement;
+              html.dataset.theme =
+                html.dataset.theme === "dark" ? "light" : "dark";
+            }}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: "1.2rem",
+              cursor: "pointer",
+              color: "var(--text)",
+            }}
+            title="Theme wechseln"
+          >
+            🌓
+          </button>
+          <button className="chat-settings-btn">⚙️</button>
+        </div>
       </div>
 
-      {/* 🎛️ Moduswahl */}
+      {/* 🎛️ Modusauswahl */}
       <div className={styles["chat-mode-selector"]}>
         <label>Modus: </label>
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
