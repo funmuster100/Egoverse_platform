@@ -1,6 +1,6 @@
 
 import OpenAI from "openai";
-
+import { generateSystemPrompt } from "../../utilis/systemPrompt";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
