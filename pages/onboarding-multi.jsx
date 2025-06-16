@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
 
 const questions = [
+  { key: "origin", label: "Wo kommst du ursprünglich her?", tip: "Der Ort hilft uns, deinen Dialekt realistisch zu spiegeln." },
   { key: "name", label: "Wie heißt du?", tip: "Du kannst auch einen Spitznamen angeben." },
   { key: "age", label: "Wie alt bist du?", tip: "Dein Alter hilft deinem Ego, dich besser zu spiegeln." },
   { key: "job", label: "Was machst du beruflich?", tip: "Stell dir vor, du erklärst es einem Kind." },
@@ -41,10 +42,35 @@ export default function Onboarding() {
       setStep(step + 1);
     } else {
       const finalProfile = { ...answers };
+
+      // Dialekt automatisch erkennen
+      if (finalProfile.origin) {
+        const region = finalProfile.origin.trim().toLowerCase();
+        const dialectMap = {
+          wilhelmsdorf: "schwäbisch",
+          berlin: "berlinerisch",
+          münchen: "bairisch",
+          hamburg: "norddeutsch",
+          köln: "rheinisch",
+          leipzig: "sächsisch",
+          frankfurt: "hessisch",
+          stuttgart: "schwäbisch",
+          wien: "österreichisch",
+          zürich: "schweizerdeutsch",
+          bremen: "norddeutsch",
+          dresden: "sächsisch",
+          nürnberg: "fränkisch",
+          hannover: "hochdeutsch",
+          freiburg: "badisch"
+        };
+        finalProfile.dialect = dialectMap[region] || "hochdeutsch";
+      }
+
       if (avatar) {
         finalProfile.avatar = avatar;
         localStorage.setItem("ego_avatar", avatar);
       }
+
       localStorage.setItem("ego_profile", JSON.stringify(finalProfile));
       router.push("/summary");
     }
