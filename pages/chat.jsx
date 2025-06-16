@@ -11,10 +11,21 @@ export default function Chat() {
   const [mode, setMode] = useState("default");
   const [lang, setLang] = useState("de");
 
+  // Laden von Profil + Chatverlauf
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
     if (p) setProfile(JSON.parse(p));
+
+    const saved = localStorage.getItem("ego_chat_history");
+    if (saved) setMessages(JSON.parse(saved));
   }, []);
+
+  // Speichern von Nachrichten
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem("ego_chat_history", JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const send = async () => {
     if (!input.trim()) return;
@@ -81,7 +92,7 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* Header Right: Theme & Settings */}
+        {/* Header rechts: Theme & Settings */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => {
@@ -104,7 +115,7 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* 🎛️ Modusauswahl */}
+      {/* 🎛️ Moduswahl + Reset */}
       <div className={styles["chat-mode-selector"]}>
         <label>Modus: </label>
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -113,12 +124,30 @@ export default function Chat() {
           <option value="mentor">🧓 Mentor</option>
           <option value="kritiker">⚡ Kritiker</option>
         </select>
+        <div className={styles["chat-reset"]}>
+          <button
+            onClick={() => {
+              setMessages([]);
+              localStorage.removeItem("ego_chat_history");
+            }}
+          >
+            🗑️ Verlauf löschen
+          </button>
+        </div>
+      </div>
+
+      {/* 🔁 Modusanzeige */}
+      <div className={styles["chat-mode-indicator"]}>
+        Aktueller Modus: <strong>{mode}</strong>
       </div>
 
       {/* 💬 Nachrichtenverlauf */}
       <div className={styles["chat-messages"]}>
         {messages.map((m, i) => (
-          <div key={i} className={`${styles["bubble-container"]} ${styles[m.role]}`}>
+          <div
+            key={i}
+            className={`${styles["bubble-container"]} ${styles[m.role]}`}
+          >
             <Image
               src={getAvatar(m.role)}
               alt={`${m.role}-avatar`}
