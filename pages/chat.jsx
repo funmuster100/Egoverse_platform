@@ -7,6 +7,8 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [mode, setMode] = useState("default"); // 🆕 Modus
+  const [lang, setLang] = useState("de"); // 🆕 Sprache (für spätere Erweiterung)
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
@@ -22,7 +24,7 @@ export default function Chat() {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, profile }),
+      body: JSON.stringify({ message: input, profile, mode, lang }), // 🆕 Übergabe
     });
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
@@ -78,6 +80,17 @@ export default function Chat() {
           </div>
         </div>
         <button className="chat-settings-btn">⚙️</button>
+      </div>
+
+      {/* 🎛️ Moduswahl */}
+      <div className="chat-mode-selector">
+        <label>Modus: </label>
+        <select value={mode} onChange={(e) => setMode(e.target.value)}>
+          <option value="default">🧠 Ich selbst</option>
+          <option value="coach">🗣️ Coach</option>
+          <option value="mentor">🧓 Mentor</option>
+          <option value="kritiker">⚡ Kritiker</option>
+        </select>
       </div>
 
       {/* 💬 Nachrichtenverlauf */}
