@@ -24,7 +24,11 @@ export default async function handler(req, res) {
       ],
     });
 
-    res.status(200).json({ reply: completion.choices[0].message.content });
+    const reply =
+      completion?.choices?.[0]?.message?.content?.trim() ||
+      "Ich konnte gerade nichts antworten. Versuch's bitte nochmal.";
+
+    res.status(200).json({ reply });
   } catch (error) {
     console.error("OpenAI Error:", error);
     res.status(500).json({ error: "Fehler beim GPT-Abruf.", details: error.message });
