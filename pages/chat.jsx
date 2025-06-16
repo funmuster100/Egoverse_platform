@@ -11,6 +11,13 @@ export default function Chat() {
   const [mode, setMode] = useState("default");
   const [lang, setLang] = useState("de");
 
+  const BOT_AVATARS = {
+    default: "/avatars/bot_default.jpg",
+    coach: "/avatars/bot_coach.jpg",
+    mentor: "/avatars/bot_mentor.jpg",
+    kritiker: "/avatars/bot_kritiker.jpg",
+  };
+
   // Laden von Profil + Chatverlauf
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
@@ -48,7 +55,7 @@ export default function Chat() {
       if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
       return "/avatars/user.png";
     }
-    return "/avatars/bot.PNG";
+    return BOT_AVATARS[mode] || "/avatars/bot_default.jpg";
   };
 
   const handleAvatarUpload = (e) => {
@@ -92,7 +99,6 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* Header rechts: Theme & Settings */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => {
@@ -115,7 +121,7 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* 🎛️ Moduswahl + Reset */}
+      {/* 🎛️ Modusauswahl */}
       <div className={styles["chat-mode-selector"]}>
         <label>Modus: </label>
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -136,7 +142,6 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* 🔁 Modusanzeige */}
       <div className={styles["chat-mode-indicator"]}>
         Aktueller Modus: <strong>{mode}</strong>
       </div>
