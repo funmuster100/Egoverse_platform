@@ -1,14 +1,15 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import styles from "../styles/Chat.module.css"; // 👈 CSS-Module importiert
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [mode, setMode] = useState("default"); // 🆕 Modus
-  const [lang, setLang] = useState("de"); // 🆕 Sprache (für spätere Erweiterung)
+  const [mode, setMode] = useState("default");
+  const [lang, setLang] = useState("de");
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
@@ -24,7 +25,7 @@ export default function Chat() {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, profile, mode, lang }), // 🆕 Übergabe
+      body: JSON.stringify({ message: input, profile, mode, lang }),
     });
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
@@ -52,17 +53,17 @@ export default function Chat() {
   };
 
   return (
-    <div className="chat-container">
+    <div className={styles["chat-container"]}>
       {/* 🧠 Chat-Header */}
-      <div className="chat-header">
-        <div className="chat-header-left">
+      <div className={styles["chat-header"]}>
+        <div className={styles["chat-header-left"]}>
           <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
             <Image
               src={getAvatar("user")}
               alt="User Avatar"
               width={36}
               height={36}
-              className="avatar"
+              className={styles["avatar"]}
             />
           </label>
           <input
@@ -73,9 +74,9 @@ export default function Chat() {
             onChange={handleAvatarUpload}
           />
           <div>
-            <div className="chat-title">Du (Ego)</div>
-            <div className="chat-status">
-              <span className="status-dot" /> Online
+            <div className={styles["chat-title"]}>Du (Ego)</div>
+            <div className={styles["chat-status"]}>
+              <span className={styles["status-dot"]} /> Online
             </div>
           </div>
         </div>
@@ -83,7 +84,7 @@ export default function Chat() {
       </div>
 
       {/* 🎛️ Moduswahl */}
-      <div className="chat-mode-selector">
+      <div className={styles["chat-mode-selector"]}>
         <label>Modus: </label>
         <select value={mode} onChange={(e) => setMode(e.target.value)}>
           <option value="default">🧠 Ich selbst</option>
@@ -94,30 +95,30 @@ export default function Chat() {
       </div>
 
       {/* 💬 Nachrichtenverlauf */}
-      <div className="chat-messages">
+      <div className={styles["chat-messages"]}>
         {messages.map((m, i) => (
-          <div key={i} className={`bubble-container ${m.role}`}>
+          <div key={i} className={`${styles["bubble-container"]} ${styles[m.role]}`}>
             <Image
               src={getAvatar(m.role)}
               alt={`${m.role}-avatar`}
               width={40}
               height={40}
-              className="avatar"
+              className={styles["avatar"]}
             />
-            <div className="bubble">{m.content}</div>
+            <div className={styles["bubble"]}>{m.content}</div>
           </div>
         ))}
         {isTyping && (
-          <div className="typing-bubble">
-            <div className="dot" />
-            <div className="dot" />
-            <div className="dot" />
+          <div className={styles["typing-bubble"]}>
+            <div className={styles["dot"]} />
+            <div className={styles["dot"]} />
+            <div className={styles["dot"]} />
           </div>
         )}
       </div>
 
       {/* ✍️ Eingabefeld */}
-      <div className="chat-input">
+      <div className={styles["chat-input"]}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
