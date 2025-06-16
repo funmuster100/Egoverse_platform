@@ -64,17 +64,22 @@ export default function Chat() {
     setDarkMode(newTheme === "dark");
   };
 
-  // Send message handler
+  // Send message handler with safe profile (ohne großes Bild)
   const send = async () => {
     if (!input.trim()) return;
     const updated = [...messages, { role: "user", content: input }];
     setMessages(updated);
     setInput("");
     setIsTyping(true);
+
+    // Profil kopieren und große Daten entfernen
+    const safeProfile = { ...profile };
+    if (safeProfile.brandingLogo) delete safeProfile.brandingLogo;
+
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, profile, mode, lang }),
+      body: JSON.stringify({ message: input, profile: safeProfile, mode, lang }),
     });
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
