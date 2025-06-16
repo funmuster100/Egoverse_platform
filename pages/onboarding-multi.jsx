@@ -3,8 +3,17 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
 
+const DIALECT_OPTIONS = [
+  "hochdeutsch",
+  "schwäbisch",
+  "bayrisch",
+  "berlinerisch",
+  "kölsch",
+  "sächsisch",
+  "norddeutsch",
+];
+
 const questions = [
-  { key: "origin", label: "Wo kommst du ursprünglich her?", tip: "Der Ort hilft uns, deinen Dialekt realistisch zu spiegeln." },
   { key: "name", label: "Wie heißt du?", tip: "Du kannst auch einen Spitznamen angeben." },
   { key: "age", label: "Wie alt bist du?", tip: "Dein Alter hilft deinem Ego, dich besser zu spiegeln." },
   { key: "job", label: "Was machst du beruflich?", tip: "Stell dir vor, du erklärst es einem Kind." },
@@ -24,7 +33,10 @@ const questions = [
   { key: "child_memory", label: "Was ist deine stärkste Erinnerung aus der Kindheit?", tip: "Schließ kurz die Augen und spür hinein." },
   { key: "parent_expectation", label: "Was wollten deine Eltern, dass du wirst?", tip: "Und wie fühlt sich das heute für dich an?" },
   { key: "future_self", label: "Was möchtest du in 10 Jahren über dich sagen können?", tip: "Schreib’s wie eine kurze Vision." },
-  { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?", tip: "Was sollen Menschen mit dir verbinden?" }
+  { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?", tip: "Was sollen Menschen mit dir verbinden?" },
+  { key: "origin", label: "Woher kommst du?", tip: "Ort oder Region genügt – wir erkennen deinen Dialekt automatisch." },
+  { key: "dialect", label: "Wähle deinen Dialekt", tip: "Falls die automatische Erkennung nicht stimmt." },
+  { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
 ];
 
 export default function Onboarding() {
@@ -33,44 +45,35 @@ export default function Onboarding() {
   const [answers, setAnswers] = useState({});
   const [avatar, setAvatar] = useState(null);
 
+  // Dialekterkennung per Region (Fallback falls kein Dialekt gewählt)
+  function guessDialect(origin) {
+    if (!origin) return null;
+    const loc = origin.toLowerCase();
+    if (loc.includes("ravensburg") || loc.includes("weingarten") || loc.includes("wilhelmsdorf")) return "schwäbisch";
+    if (loc.includes("münchen") || loc.includes("bayern")) return "bayrisch";
+    if (loc.includes("berlin")) return "berlinerisch";
+    if (loc.includes("köln")) return "kölsch";
+    if (loc.includes("hamburg")) return "norddeutsch";
+    if (loc.includes("dresden") || loc.includes("leipzig")) return "sächsisch";
+    return null;
+  }
+
   const handleChange = (e) => {
     setAnswers({ ...answers, [questions[step].key]: e.target.value });
   };
 
   const next = () => {
+    // Am letzten Fragefeld Dialekt automatisch setzen, falls leer
+    if (step === questions.length - 1 && !answers.dialect) {
+      const guessed = guessDialect(answers.origin);
+      setAnswers((prev) => ({ ...prev, dialect: guessed || "hochdeutsch" }));
+    }
+
     if (step < questions.length) {
       setStep(step + 1);
     } else {
       const finalProfile = { ...answers };
-
-      // Dialekt automatisch erkennen
-      if (finalProfile.origin) {
-        const region = finalProfile.origin.trim().toLowerCase();
-        const dialectMap = {
-          wilhelmsdorf: "schwäbisch",
-          berlin: "berlinerisch",
-          münchen: "bairisch",
-          hamburg: "norddeutsch",
-          köln: "rheinisch",
-          leipzig: "sächsisch",
-          frankfurt: "hessisch",
-          stuttgart: "schwäbisch",
-          wien: "österreichisch",
-          zürich: "schweizerdeutsch",
-          bremen: "norddeutsch",
-          dresden: "sächsisch",
-          nürnberg: "fränkisch",
-          hannover: "hochdeutsch",
-          freiburg: "badisch"
-        };
-        finalProfile.dialect = dialectMap[region] || "hochdeutsch";
-      }
-
-      if (avatar) {
-        finalProfile.avatar = avatar;
-        localStorage.setItem("ego_avatar", avatar);
-      }
-
+      if (avatar) finalProfile.avatar = avatar;
       localStorage.setItem("ego_profile", JSON.stringify(finalProfile));
       router.push("/summary");
     }
@@ -110,23 +113,47 @@ export default function Onboarding() {
         ) : (
           <>
             <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{currentQuestion.label}</h2>
-            <input
-              value={answers[currentQuestion.key] || ""}
-              onChange={handleChange}
-              onKeyDown={(e) => e.key === "Enter" && next()}
-              style={{
-                width: "100%",
-                padding: "14px",
-                fontSize: "1rem",
-                background: "#222",
-                border: "1px solid #333",
-                color: "#eee",
-                borderRadius: "8px",
-                marginBottom: "0.8rem",
-                outline: "none"
-              }}
-              autoFocus
-            />
+            {currentQuestion.key === "dialect" ? (
+              <select
+                value={answers.dialect || ""}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  fontSize: "1rem",
+                  borderRadius: "8px",
+                  background: "#222",
+                  border: "1px solid #333",
+                  color: "#eee",
+                  marginBottom: "0.8rem",
+                  outline: "none",
+                }}
+              >
+                <option value="">Bitte wählen</option>
+                {DIALECT_OPTIONS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={answers[currentQuestion.key] || ""}
+                onChange={handleChange}
+                onKeyDown={(e) => e.key === "Enter" && next()}
+                autoFocus
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  fontSize: "1rem",
+                  background: "#222",
+                  border: "1px solid #333",
+                  color: "#eee",
+                  borderRadius: "8px",
+                  marginBottom: "0.8rem",
+                  outline: "none"
+                }}
+              />
+            )}
             {currentQuestion.tip && (
               <p style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "1.5rem" }}>
                 {currentQuestion.tip}
@@ -134,7 +161,6 @@ export default function Onboarding() {
             )}
           </>
         )}
-
         <button
           onClick={next}
           style={{
