@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       model: "gpt-3.5-turbo", // optional: "gpt-4o"
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: message },
+        { role: "user", content: messages },
       ],
     });
 
