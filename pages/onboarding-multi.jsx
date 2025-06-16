@@ -34,11 +34,17 @@ const questions = [
   { key: "parent_expectation", label: "Was wollten deine Eltern, dass du wirst?", tip: "Und wie fühlt sich das heute für dich an?" },
   { key: "future_self", label: "Was möchtest du in 10 Jahren über dich sagen können?", tip: "Schreib’s wie eine kurze Vision." },
   { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?", tip: "Was sollen Menschen mit dir verbinden?" },
+
   { key: "origin", label: "Woher kommst du?", tip: "Ort oder Region genügt – wir erkennen deinen Dialekt automatisch." },
-  { key: "dialect", label: "Wähle deinen Dialekt", tip: "Falls die automatische Erkennung nicht stimmt." },
+  {
+    key: "dialect",
+    label: "Wähle deinen Dialekt",
+    tip: "Falls die automatische Erkennung nicht stimmt.",
+    type: "select",
+    options: DIALECT_OPTIONS.map((d) => ({ value: d, label: d })),
+  },
   { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
 
-  // Influencer-Frage als Dropdown
   {
     key: "isInfluencer",
     label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?",
@@ -68,31 +74,31 @@ export default function Onboarding() {
     if (loc.includes("köln")) return "kölsch";
     if (loc.includes("hamburg")) return "norddeutsch";
     if (loc.includes("dresden") || loc.includes("leipzig")) return "sächsisch";
-    return null;
+    return "hochdeutsch";
   }
 
   const handleChange = (e) => {
-    const { type, checked, value, name, files } = e.target;
+    const { type, checked, value, name } = e.target;
 
     if (type === "checkbox") {
       setAnswers({ ...answers, [name]: checked });
-    } else if (type === "file") {
-      const file = files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => setBrandingLogo(reader.result);
-      reader.readAsDataURL(file);
     } else {
-      setAnswers({ ...answers, [name]: value });
+      if (name === "origin") {
+        const guessed = guessDialect(value);
+        setAnswers((prev) => {
+          // Setze Dialekt nur, wenn er leer ist oder gleich dem alten Dialekt aus vorherigem guess
+          if (!prev.dialect || prev.dialect === guessDialect(prev.origin || "")) {
+            return { ...prev, origin: value, dialect: guessed };
+          }
+          return { ...prev, origin: value };
+        });
+      } else {
+        setAnswers({ ...answers, [name]: value });
+      }
     }
   };
 
   const next = () => {
-    if (step === questions.length - 1 && !answers.dialect) {
-      const guessed = guessDialect(answers.origin);
-      setAnswers((prev) => ({ ...prev, dialect: guessed || "hochdeutsch" }));
-    }
-
     if (step < questions.length) {
       setStep(step + 1);
     } else {
@@ -145,7 +151,13 @@ export default function Onboarding() {
                 <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
                   Lade dein Branding-Logo hoch (optional)
                 </h2>
-                <input type="file" name="brandingLogo" accept="image/*" onChange={handleChange} />
+                <input type="file" name="brandingLogo" accept="image/*" onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => setBrandingLogo(reader.result);
+                  reader.readAsDataURL(file);
+                }} />
                 {brandingLogo && (
                   <img
                     src={brandingLogo}
@@ -187,6 +199,7 @@ export default function Onboarding() {
                   outline: "none",
                 }}
               >
+                <option value="">Bitte wählen</option>
                 {currentQuestion.options.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
