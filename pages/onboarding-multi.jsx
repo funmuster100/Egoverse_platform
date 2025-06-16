@@ -38,10 +38,18 @@ const questions = [
   { key: "dialect", label: "Wähle deinen Dialekt", tip: "Falls die automatische Erkennung nicht stimmt." },
   { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
 
-  // Influencer-spezifische Felder
-  { key: "isInfluencer", label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?", tip: "Das ermöglicht spezielles Branding und öffentliche Nutzung.", type: "checkbox" },
-  { key: "brandingColor", label: "Wähle deine Branding-Farbe", tip: "Primärfarbe für deinen Ego-Bot", type: "color" },
-  { key: "brandingLogo", label: "Lade dein Logo hoch", tip: "Für die individuelle Darstellung deines Ego-Bots", type: "file" },
+  // Influencer-Frage als Dropdown
+  {
+    key: "isInfluencer",
+    label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?",
+    tip: "Das ermöglicht spezielles Branding und öffentliche Nutzung.",
+    type: "select",
+    options: [
+      { value: "", label: "Bitte auswählen" },
+      { value: "yes", label: "Ja" },
+      { value: "no", label: "Nein" },
+    ],
+  },
 ];
 
 export default function Onboarding() {
@@ -51,7 +59,6 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(null);
   const [brandingLogo, setBrandingLogo] = useState(null);
 
-  // Dialekterkennung per Herkunftsort (Fallback)
   function guessDialect(origin) {
     if (!origin) return null;
     const loc = origin.toLowerCase();
@@ -81,7 +88,6 @@ export default function Onboarding() {
   };
 
   const next = () => {
-    // Dialekt automatisch setzen, falls leer
     if (step === questions.length - 1 && !answers.dialect) {
       const guessed = guessDialect(answers.origin);
       setAnswers((prev) => ({ ...prev, dialect: guessed || "hochdeutsch" }));
@@ -92,7 +98,7 @@ export default function Onboarding() {
     } else {
       const finalProfile = { ...answers };
       if (avatar) finalProfile.avatar = avatar;
-      if (brandingLogo) finalProfile.brandingLogo = brandingLogo;
+      if (brandingLogo && answers.isInfluencer === "yes") finalProfile.brandingLogo = brandingLogo;
       localStorage.setItem("ego_profile", JSON.stringify(finalProfile));
       router.push("/summary");
     }
@@ -132,24 +138,62 @@ export default function Onboarding() {
               Lade ein Bild hoch für dein Ego
             </h2>
             <AvatarUpload onAvatarSelect={setAvatar} />
-            <hr style={{ margin: "1.5rem 0" }} />
-            <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
-              Lade dein Branding-Logo hoch (optional)
-            </h2>
-            <input type="file" name="brandingLogo" accept="image/*" onChange={handleChange} />
-            {brandingLogo && (
-              <img
-                src={brandingLogo}
-                alt="Branding Logo"
-                style={{ maxWidth: "100px", marginTop: "1rem", borderRadius: "8px" }}
-              />
+
+            {answers.isInfluencer === "yes" && (
+              <>
+                <hr style={{ margin: "1.5rem 0" }} />
+                <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+                  Lade dein Branding-Logo hoch (optional)
+                </h2>
+                <input type="file" name="brandingLogo" accept="image/*" onChange={handleChange} />
+                {brandingLogo && (
+                  <img
+                    src={brandingLogo}
+                    alt="Branding Logo"
+                    style={{ maxWidth: "100px", marginTop: "1rem", borderRadius: "8px" }}
+                  />
+                )}
+                <h2 style={{ marginTop: "1.5rem", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+                  Wähle deine Branding-Farbe
+                </h2>
+                <input
+                  type="color"
+                  name="brandingColor"
+                  value={answers.brandingColor || "#00ff88"}
+                  onChange={handleChange}
+                  style={{ width: "100%", height: "40px", border: "none", cursor: "pointer" }}
+                />
+              </>
             )}
           </>
         ) : (
           <>
             <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{currentQuestion.label}</h2>
 
-            {currentQuestion.type === "checkbox" ? (
+            {currentQuestion.type === "select" ? (
+              <select
+                name={currentQuestion.key}
+                value={answers[currentQuestion.key] || ""}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  fontSize: "1rem",
+                  borderRadius: "8px",
+                  background: "#222",
+                  border: "1px solid #333",
+                  color: "#eee",
+                  marginBottom: "0.8rem",
+                  outline: "none",
+                }}
+              >
+                {currentQuestion.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : currentQuestion.type === "checkbox" ? (
               <input
                 type="checkbox"
                 name={currentQuestion.key}
@@ -165,30 +209,6 @@ export default function Onboarding() {
                 onChange={handleChange}
                 style={{ width: "100%", height: "40px", border: "none", cursor: "pointer" }}
               />
-            ) : currentQuestion.key === "dialect" ? (
-              <select
-                name="dialect"
-                value={answers.dialect || ""}
-                onChange={handleChange}
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  fontSize: "1rem",
-                  borderRadius: "8px",
-                  background: "#222",
-                  border: "1px solid #333",
-                  color: "#eee",
-                  marginBottom: "0.8rem",
-                  outline: "none",
-                }}
-              >
-                <option value="">Bitte wählen</option>
-                {DIALECT_OPTIONS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
             ) : (
               <input
                 type="text"
