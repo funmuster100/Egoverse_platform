@@ -15,7 +15,12 @@ export default async function handler(req, res) {
 
   try {
     const systemPrompt = generateSystemPrompt(profile, mode, lang);
-
+    // Kombiniere System + bisherigen Verlauf
+    const chatMessages = [
+      { role: "system", content: systemPrompt },
+      // ...alle bisherigen Nachrichten (user + assistant)...
+      ...messages.map((m) => ({ role: m.role, content: m.content })),
+    ];
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo", // optional: "gpt-4o"
       messages: [
