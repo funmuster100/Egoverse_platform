@@ -37,6 +37,11 @@ const questions = [
   { key: "origin", label: "Woher kommst du?", tip: "Ort oder Region genügt – wir erkennen deinen Dialekt automatisch." },
   { key: "dialect", label: "Wähle deinen Dialekt", tip: "Falls die automatische Erkennung nicht stimmt." },
   { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
+
+  // Influencer-spezifische Felder
+  { key: "isInfluencer", label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?", tip: "Das ermöglicht spezielles Branding und öffentliche Nutzung.", type: "checkbox" },
+  { key: "brandingColor", label: "Wähle deine Branding-Farbe", tip: "Primärfarbe für deinen Ego-Bot", type: "color" },
+  { key: "brandingLogo", label: "Lade dein Logo hoch", tip: "Für die individuelle Darstellung deines Ego-Bots", type: "file" },
 ];
 
 export default function Onboarding() {
@@ -44,8 +49,9 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [avatar, setAvatar] = useState(null);
+  const [brandingLogo, setBrandingLogo] = useState(null);
 
-  // Dialekterkennung per Region (Fallback falls kein Dialekt gewählt)
+  // Dialekterkennung per Herkunftsort (Fallback)
   function guessDialect(origin) {
     if (!origin) return null;
     const loc = origin.toLowerCase();
@@ -59,11 +65,23 @@ export default function Onboarding() {
   }
 
   const handleChange = (e) => {
-    setAnswers({ ...answers, [questions[step].key]: e.target.value });
+    const { type, checked, value, name, files } = e.target;
+
+    if (type === "checkbox") {
+      setAnswers({ ...answers, [name]: checked });
+    } else if (type === "file") {
+      const file = files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => setBrandingLogo(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setAnswers({ ...answers, [name]: value });
+    }
   };
 
   const next = () => {
-    // Am letzten Fragefeld Dialekt automatisch setzen, falls leer
+    // Dialekt automatisch setzen, falls leer
     if (step === questions.length - 1 && !answers.dialect) {
       const guessed = guessDialect(answers.origin);
       setAnswers((prev) => ({ ...prev, dialect: guessed || "hochdeutsch" }));
@@ -74,6 +92,7 @@ export default function Onboarding() {
     } else {
       const finalProfile = { ...answers };
       if (avatar) finalProfile.avatar = avatar;
+      if (brandingLogo) finalProfile.brandingLogo = brandingLogo;
       localStorage.setItem("ego_profile", JSON.stringify(finalProfile));
       router.push("/summary");
     }
@@ -83,38 +102,72 @@ export default function Onboarding() {
   const currentQuestion = questions[step];
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
-      color: "#eee",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "2rem",
-      fontFamily: "'Segoe UI', sans-serif"
-    }}>
-      <div style={{
-        background: "rgba(255, 255, 255, 0.04)",
-        border: "1px solid rgba(255, 255, 255, 0.06)",
-        borderRadius: "16px",
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
+        color: "#eee",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         padding: "2rem",
-        maxWidth: "600px",
-        width: "100%",
-        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(6px)"
-      }}>
+        fontFamily: "'Segoe UI', sans-serif",
+      }}
+    >
+      <div
+        style={{
+          background: "rgba(255, 255, 255, 0.04)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          borderRadius: "16px",
+          padding: "2rem",
+          maxWidth: "600px",
+          width: "100%",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
+          backdropFilter: "blur(6px)",
+        }}
+      >
         {isAvatarStep ? (
           <>
             <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
               Lade ein Bild hoch für dein Ego
             </h2>
             <AvatarUpload onAvatarSelect={setAvatar} />
+            <hr style={{ margin: "1.5rem 0" }} />
+            <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
+              Lade dein Branding-Logo hoch (optional)
+            </h2>
+            <input type="file" name="brandingLogo" accept="image/*" onChange={handleChange} />
+            {brandingLogo && (
+              <img
+                src={brandingLogo}
+                alt="Branding Logo"
+                style={{ maxWidth: "100px", marginTop: "1rem", borderRadius: "8px" }}
+              />
+            )}
           </>
         ) : (
           <>
             <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{currentQuestion.label}</h2>
-            {currentQuestion.key === "dialect" ? (
+
+            {currentQuestion.type === "checkbox" ? (
+              <input
+                type="checkbox"
+                name={currentQuestion.key}
+                checked={answers[currentQuestion.key] || false}
+                onChange={handleChange}
+                style={{ transform: "scale(1.3)", marginTop: "0.5rem" }}
+              />
+            ) : currentQuestion.type === "color" ? (
+              <input
+                type="color"
+                name={currentQuestion.key}
+                value={answers[currentQuestion.key] || "#00ff88"}
+                onChange={handleChange}
+                style={{ width: "100%", height: "40px", border: "none", cursor: "pointer" }}
+              />
+            ) : currentQuestion.key === "dialect" ? (
               <select
+                name="dialect"
                 value={answers.dialect || ""}
                 onChange={handleChange}
                 style={{
@@ -131,12 +184,15 @@ export default function Onboarding() {
               >
                 <option value="">Bitte wählen</option>
                 {DIALECT_OPTIONS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
                 ))}
               </select>
             ) : (
               <input
                 type="text"
+                name={currentQuestion.key}
                 value={answers[currentQuestion.key] || ""}
                 onChange={handleChange}
                 onKeyDown={(e) => e.key === "Enter" && next()}
@@ -150,10 +206,11 @@ export default function Onboarding() {
                   color: "#eee",
                   borderRadius: "8px",
                   marginBottom: "0.8rem",
-                  outline: "none"
+                  outline: "none",
                 }}
               />
             )}
+
             {currentQuestion.tip && (
               <p style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "1.5rem" }}>
                 {currentQuestion.tip}
@@ -161,6 +218,7 @@ export default function Onboarding() {
             )}
           </>
         )}
+
         <button
           onClick={next}
           style={{
@@ -174,10 +232,10 @@ export default function Onboarding() {
             color: "#111",
             cursor: "pointer",
             boxShadow: "0 0 16px rgba(0, 255, 170, 0.3)",
-            transition: "transform 0.2s ease-in-out"
+            transition: "transform 0.2s ease-in-out",
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.03)"}
-          onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           {isAvatarStep ? "Fertig" : "Weiter"}
         </button>
