@@ -76,11 +76,18 @@ export default function Chat() {
     const safeProfile = { ...profile };
     if (safeProfile.brandingLogo) delete safeProfile.brandingLogo;
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, profile: safeProfile, mode, lang }),
-    });
+   // Sende gesamten Verlauf plus Profil & Modus
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages: updated,    // ← kompletter Verlauf
+      profile: safeProfile, // ohne Base64-Bild
+      mode,
+      lang,
+    }),
+  });
+  
     const data = await res.json();
     setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
