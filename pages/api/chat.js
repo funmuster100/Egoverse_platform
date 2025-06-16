@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-  const { message, profile, mode = "default", lang = "de" } = req.body;
+  const { messages, profile, mode = "default", lang = "de" } = req.body;
 
   if (!process.env.OPENAI_API_KEY) {
     return res.status(500).json({ error: "API key fehlt." });
