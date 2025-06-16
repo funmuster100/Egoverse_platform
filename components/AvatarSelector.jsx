@@ -2,10 +2,10 @@ import Image from "next/image";
 import styles from "../styles/AvatarSelector.module.css";
 
 const avatars = [
-  { key: "default", label: "🧠 Ich selbst", file: "/avatars/default.jpg" },
-  { key: "coach", label: "🗣️ Coach", file: "/avatars/coach.jpg" },
-  { key: "mentor", label: "🧓 Mentor", file: "/avatars/mentor.jpg" },
-  { key: "kritiker", label: "⚡ Kritiker", file: "/avatars/kritiker.jpg" },
+  { key: "default", label: "🧠 Ich selbst", file: "/avatars/default.jpeg" },
+  { key: "coach", label: "🗣️ Coach", file: "/avatars/coach.jpeg" },
+  { key: "mentor", label: "🧓 Mentor", file: "/avatars/mentor.jpeg" },
+  { key: "kritiker", label: "⚡ Kritiker", file: "/avatars/kritiker.jpeg" },
 ];
 
 export default function AvatarSelector({ selected, onSelect }) {
