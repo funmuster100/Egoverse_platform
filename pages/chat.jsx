@@ -12,10 +12,10 @@ export default function Chat() {
   const [lang, setLang] = useState("de");
 
   const BOT_AVATARS = {
-    default: "/avatars/bot_default.jpg",
-    coach: "/avatars/bot_coach.jpg",
-    mentor: "/avatars/bot_mentor.jpg",
-    kritiker: "/avatars/bot_kritiker.jpg",
+    default: "/avatars/bot_default.jpeg",
+    coach: "/avatars/bot_coach.jpeg",
+    mentor: "/avatars/bot_mentor.jpeg",
+    kritiker: "/avatars/bot_kritiker.jpeg",
   };
 
   // Laden von Profil + Chatverlauf
@@ -55,7 +55,7 @@ export default function Chat() {
       if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
       return "/avatars/user.png";
     }
-    return BOT_AVATARS[mode] || "/avatars/bot_default.jpg";
+    return BOT_AVATARS[mode] || "/avatars/bot_default.jpeg";
   };
 
   const handleAvatarUpload = (e) => {
