@@ -1,6 +1,6 @@
 
 import OpenAI from "openai";
-import { generateSystemPrompt } from "../utils/systemPrompt"; // ✅ externer Import
+import { generateSystemPrompt } from "../../utils/systemPrompt"; // ✅ externer Import
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
