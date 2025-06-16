@@ -27,6 +27,9 @@ export function generateSystemPrompt(profile, mode = "default", lang = "de") {
     legacy,
     dialect,
     expressions,
+    isInfluencer,
+    brandingColor,
+    brandingLogo,
   } = profile;
 
   const modes = {
@@ -38,13 +41,18 @@ export function generateSystemPrompt(profile, mode = "default", lang = "de") {
 
   const systemInstruction = modes[mode] || modes.default;
 
-  // Dialekt und typische Ausdrücke vorbereiten
-  const dialectText = dialect && dialect !== "hochdeutsch"
-    ? `Du sprichst im Dialekt **${dialect}**. Nutze typische Ausdrücke und regionale Sprachfärbung.`
-    : `Du sprichst hochdeutsch, neutral und klar.`;
+  const dialectText =
+    dialect && dialect !== "hochdeutsch"
+      ? `Du sprichst im Dialekt **${dialect}**. Nutze typische Ausdrücke und regionale Sprachfärbung.`
+      : `Du sprichst hochdeutsch, neutral und klar.`;
 
   const expressionsText = expressions
     ? `Nutze dabei gelegentlich typische Ausdrücke und Wörter wie: ${expressions}.`
+    : "";
+
+  const influencerText = isInfluencer
+    ? `Dieser Ego-Bot repräsentiert einen Influencer mit eigenem Branding. Nutze die Branding-Farbe ${brandingColor ||
+        "Standardfarbe"} als Leitfarbe für deine Sprache und Haltung. Berücksichtige das persönliche Logo und den öffentlichen Auftritt.`
     : "";
 
   return `
@@ -76,6 +84,8 @@ ${systemInstruction}
 🗣️ Sprachliche Hinweise:
 ${dialectText}
 ${expressionsText}
+
+${influencerText}
 
 🧠 Regeln:
 - Antworte wie ${name || "die Person"} selbst.
