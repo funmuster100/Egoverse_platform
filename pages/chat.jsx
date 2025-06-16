@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import styles from "../styles/Chat.module.css";
 
@@ -10,6 +11,7 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [mode, setMode] = useState("default");
   const [lang, setLang] = useState("de");
+  const router = useRouter();
 
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
@@ -18,16 +20,25 @@ export default function Chat() {
     kritiker: "/avatars/bot_kritiker.jpeg",
   };
 
-  // Laden von Profil + Chatverlauf
+  // Profil + Verlauf laden & ggf. weiterleiten
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
-    if (p) setProfile(JSON.parse(p));
+    if (p) {
+      const parsed = JSON.parse(p);
+      setProfile(parsed);
+
+      if (!parsed.avatar) {
+        router.push("/avatar-setup");
+      }
+    } else {
+      router.push("/avatar-setup");
+    }
 
     const saved = localStorage.getItem("ego_chat_history");
     if (saved) setMessages(JSON.parse(saved));
   }, []);
 
-  // Speichern von Nachrichten
+  // Verlauf speichern
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem("ego_chat_history", JSON.stringify(messages));
@@ -40,12 +51,14 @@ export default function Chat() {
     setMessages(updated);
     setInput("");
     setIsTyping(true);
+
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input, profile, mode, lang }),
     });
     const data = await res.json();
+
     setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
   };
@@ -55,7 +68,7 @@ export default function Chat() {
       if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
       return "/avatars/user.png";
     }
-    return BOT_AVATARS[mode] || "/avatars/bot_default.jpeg";
+    return BOT_AVATARS[mode] || BOT_AVATARS.default;
   };
 
   const handleAvatarUpload = (e) => {
@@ -72,7 +85,7 @@ export default function Chat() {
 
   return (
     <div className={styles["chat-container"]}>
-      {/* 🧠 Chat-Header */}
+      {/* 🧠 Header */}
       <div className={styles["chat-header"]}>
         <div className={styles["chat-header-left"]}>
           <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
@@ -98,7 +111,6 @@ export default function Chat() {
             </div>
           </div>
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => {
@@ -172,7 +184,7 @@ export default function Chat() {
         )}
       </div>
 
-      {/* ✍️ Eingabefeld */}
+      {/* ✍️ Eingabe */}
       <div className={styles["chat-input"]}>
         <input
           value={input}
