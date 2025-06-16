@@ -6,17 +6,17 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-  const { message, profile } = req.body;
+  const { message, profile, mode = "default", lang = "de" } = req.body;
 
   if (!process.env.OPENAI_API_KEY) {
     return res.status(500).json({ error: "API key fehlt." });
   }
 
   try {
-    const systemPrompt = generateSystemPrompt(profile);
+    const systemPrompt = generateSystemPrompt(profile, mode, lang);
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo", // optional: "gpt-4o" für mehr Tiefe
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message },
@@ -71,5 +71,5 @@ Du bist ${name || "eine Person"} (${age || "Alter unbekannt"}) mit folgenden Eig
 🧠 Verhalten:
 ${systemInstruction}
 Sprich emotional, tief, klar. Keine Hinweise, dass du ein Bot bist.
-  `.trim();
+`.trim();
 }
