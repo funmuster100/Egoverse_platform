@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Image from "next/image";
 import styles from "../styles/Chat.module.css";
 
@@ -11,7 +10,6 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [mode, setMode] = useState("default");
   const [lang, setLang] = useState("de");
-  const router = useRouter();
 
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
@@ -20,25 +18,14 @@ export default function Chat() {
     kritiker: "/avatars/bot_kritiker.jpeg",
   };
 
-  // Profil + Verlauf laden & ggf. weiterleiten
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
-    if (p) {
-      const parsed = JSON.parse(p);
-      setProfile(parsed);
-
-      if (!parsed.avatar) {
-        router.push("/avatar-setup");
-      }
-    } else {
-      router.push("/avatar-setup");
-    }
+    if (p) setProfile(JSON.parse(p));
 
     const saved = localStorage.getItem("ego_chat_history");
     if (saved) setMessages(JSON.parse(saved));
   }, []);
 
-  // Verlauf speichern
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem("ego_chat_history", JSON.stringify(messages));
@@ -51,14 +38,12 @@ export default function Chat() {
     setMessages(updated);
     setInput("");
     setIsTyping(true);
-
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input, profile, mode, lang }),
     });
     const data = await res.json();
-
     setMessages([...updated, { role: "assistant", content: data.reply }]);
     setIsTyping(false);
   };
@@ -68,8 +53,17 @@ export default function Chat() {
       if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
       return "/avatars/user.png";
     }
-    return BOT_AVATARS[mode] || BOT_AVATARS.default;
+    return BOT_AVATARS[mode] || "/avatars/bot_default.jpeg";
   };
+
+  // Branding-Farbe als CSS-Variable setzen
+  useEffect(() => {
+    if (profile?.brandingColor) {
+      document.documentElement.style.setProperty("--branding-color", profile.brandingColor);
+    } else {
+      document.documentElement.style.removeProperty("--branding-color");
+    }
+  }, [profile]);
 
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
@@ -84,10 +78,19 @@ export default function Chat() {
   };
 
   return (
-    <div className={styles["chat-container"]}>
-      {/* 🧠 Header */}
-      <div className={styles["chat-header"]}>
+    <div className={styles["chat-container"]} style={{ borderTopColor: profile?.brandingColor || "#00ff88" }}>
+      {/* 🧠 Chat-Header */}
+      <div className={styles["chat-header"]} style={{ borderBottomColor: profile?.brandingColor || "#00ff88" }}>
         <div className={styles["chat-header-left"]}>
+          {profile?.brandingLogo ? (
+            <Image
+              src={profile.brandingLogo}
+              alt="Branding Logo"
+              width={40}
+              height={40}
+              style={{ borderRadius: "8px", marginRight: "12px" }}
+            />
+          ) : null}
           <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
             <Image
               src={getAvatar("user")}
@@ -105,18 +108,20 @@ export default function Chat() {
             onChange={handleAvatarUpload}
           />
           <div>
-            <div className={styles["chat-title"]}>Du (Ego)</div>
+            <div className={styles["chat-title"]} style={{ color: profile?.brandingColor || "var(--text)" }}>
+              Du (Ego)
+            </div>
             <div className={styles["chat-status"]}>
-              <span className={styles["status-dot"]} /> Online
+              <span className={styles["status-dot"]} style={{ backgroundColor: profile?.brandingColor || "#2ecc71" }} /> Online
             </div>
           </div>
         </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => {
               const html = document.documentElement;
-              html.dataset.theme =
-                html.dataset.theme === "dark" ? "light" : "dark";
+              html.dataset.theme = html.dataset.theme === "dark" ? "light" : "dark";
             }}
             style={{
               background: "transparent",
@@ -134,9 +139,9 @@ export default function Chat() {
       </div>
 
       {/* 🎛️ Modusauswahl */}
-      <div className={styles["chat-mode-selector"]}>
-        <label>Modus: </label>
-        <select value={mode} onChange={(e) => setMode(e.target.value)}>
+      <div className={styles["chat-mode-selector"]} style={{ borderColor: profile?.brandingColor || "var(--border)" }}>
+        <label style={{ color: profile?.brandingColor || "var(--text)" }}>Modus: </label>
+        <select value={mode} onChange={(e) => setMode(e.target.value)} style={{ borderColor: profile?.brandingColor || "var(--border)", color: profile?.brandingColor || "var(--text)" }}>
           <option value="default">🧠 Ich selbst</option>
           <option value="coach">🗣️ Coach</option>
           <option value="mentor">🧓 Mentor</option>
@@ -148,13 +153,14 @@ export default function Chat() {
               setMessages([]);
               localStorage.removeItem("ego_chat_history");
             }}
+            style={{ backgroundColor: profile?.brandingColor || "#00ff88", color: "#111" }}
           >
             🗑️ Verlauf löschen
           </button>
         </div>
       </div>
 
-      <div className={styles["chat-mode-indicator"]}>
+      <div className={styles["chat-mode-indicator"]} style={{ color: profile?.brandingColor || "var(--text)" }}>
         Aktueller Modus: <strong>{mode}</strong>
       </div>
 
@@ -184,7 +190,7 @@ export default function Chat() {
         )}
       </div>
 
-      {/* ✍️ Eingabe */}
+      {/* ✍️ Eingabefeld */}
       <div className={styles["chat-input"]}>
         <input
           value={input}
@@ -192,7 +198,9 @@ export default function Chat() {
           onKeyDown={(e) => e.key === "Enter" && send()}
           placeholder="Frag dein Ego..."
         />
-        <button onClick={send}>Senden</button>
+        <button onClick={send} style={{ backgroundColor: profile?.brandingColor || "var(--primary)" }}>
+          Senden
+        </button>
       </div>
     </div>
   );
