@@ -15,22 +15,46 @@ export default function Chat() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [textSpeed, setTextSpeed] = useState(1);
   const [darkMode, setDarkMode] = useState(false);
+  const [brandingLogo, setBrandingLogo] = useState(null);
+  const [brandingColor, setBrandingColor] = useState("#00ff88");
 
+  // Load profile, chat history and theme on mount
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
-    if (p) setProfile(JSON.parse(p));
+    if (p) {
+      const parsed = JSON.parse(p);
+      setProfile(parsed);
+      if (parsed.brandingLogo) setBrandingLogo(parsed.brandingLogo);
+      if (parsed.brandingColor) setBrandingColor(parsed.brandingColor);
+      if (parsed.mode) setMode(parsed.mode);
+      if (parsed.lang) setLang(parsed.lang);
+    }
     const saved = localStorage.getItem("ego_chat_history");
     if (saved) setMessages(JSON.parse(saved));
-    // Dark mode initial sync
     const theme = document.documentElement.dataset.theme;
     setDarkMode(theme === "dark");
   }, []);
 
+  // Save messages to localStorage on change
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem("ego_chat_history", JSON.stringify(messages));
     }
   }, [messages]);
+
+  // Save mode & lang & branding changes to profile in localStorage
+  useEffect(() => {
+    if (!profile) return;
+    const updatedProfile = {
+      ...profile,
+      mode,
+      lang,
+      brandingLogo,
+      brandingColor,
+    };
+    setProfile(updatedProfile);
+    localStorage.setItem("ego_profile", JSON.stringify(updatedProfile));
+  }, [mode, lang, brandingLogo, brandingColor]);
 
   // Theme toggler
   const toggleTheme = () => {
@@ -40,7 +64,7 @@ export default function Chat() {
     setDarkMode(newTheme === "dark");
   };
 
-  // Send Nachricht
+  // Send message handler
   const send = async () => {
     if (!input.trim()) return;
     const updated = [...messages, { role: "user", content: input }];
@@ -57,7 +81,7 @@ export default function Chat() {
     setIsTyping(false);
   };
 
-  // Avatar-Logik für User und Bot
+  // Avatar management
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
     coach: "/avatars/bot_coach.jpeg",
@@ -85,11 +109,33 @@ export default function Chat() {
     reader.readAsDataURL(file);
   };
 
+  // Branding logo upload
+  const handleBrandingLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBrandingLogo(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Branding color change
+  const handleBrandingColorChange = (e) => {
+    setBrandingColor(e.target.value);
+  };
+
   return (
     <>
-      <div className={styles["chat-container"]}>
-        {/* 🧠 Chat-Header */}
-        <div className={styles["chat-header"]}>
+      <div
+        className={styles["chat-container"]}
+        style={{ borderTopColor: brandingColor }}
+      >
+        {/* Chat Header */}
+        <div
+          className={styles["chat-header"]}
+          style={{ borderBottomColor: brandingColor }}
+        >
           <div className={styles["chat-header-left"]}>
             <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
               <Image
@@ -116,7 +162,7 @@ export default function Chat() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Theme Toggle */}
+            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               style={{
@@ -131,7 +177,7 @@ export default function Chat() {
               🌓
             </button>
 
-            {/* Settings Button */}
+            {/* Settings button */}
             <button
               className="chat-settings-btn"
               onClick={() => setShowSettings(true)}
@@ -149,7 +195,7 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* 🎛️ Modus-Auswahl + Reset */}
+        {/* Mode selector + reset */}
         <div className={styles["chat-mode-selector"]}>
           <label>Modus: </label>
           <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -170,12 +216,12 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* 🔁 Modus-Anzeige */}
+        {/* Mode indicator */}
         <div className={styles["chat-mode-indicator"]}>
           Aktueller Modus: <strong>{mode}</strong>
         </div>
 
-        {/* 💬 Nachrichtenverlauf */}
+        {/* Messages */}
         <div className={styles["chat-messages"]}>
           {messages.map((m, i) => (
             <div
@@ -201,7 +247,7 @@ export default function Chat() {
           )}
         </div>
 
-        {/* ✍️ Eingabefeld */}
+        {/* Input */}
         <div className={styles["chat-input"]}>
           <input
             value={input}
@@ -213,7 +259,7 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* ⚙️ Einstellungen Modal */}
+      {/* Settings Modal */}
       {showSettings && (
         <div
           className={styles["settings-modal"]}
@@ -237,6 +283,8 @@ export default function Chat() {
               maxWidth: "400px",
               width: "100%",
               color: "var(--text)",
+              maxHeight: "90vh",
+              overflowY: "auto",
             }}
           >
             <h2>Einstellungen</h2>
@@ -296,6 +344,48 @@ export default function Chat() {
                 />
               </label>
             </div>
+
+            {/* Branding nur wenn Influencer */}
+            {profile?.isInfluencer === "yes" && (
+              <>
+                <hr style={{ margin: "1.5rem 0" }} />
+                <h3>Branding Einstellungen</h3>
+
+                <div style={{ marginBottom: "1rem" }}>
+                  <label>
+                    Logo hochladen:{" "}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBrandingLogoUpload}
+                    />
+                  </label>
+                  {brandingLogo && (
+                    <img
+                      src={brandingLogo}
+                      alt="Branding Logo"
+                      style={{
+                        maxWidth: "100px",
+                        marginTop: "0.5rem",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  )}
+                </div>
+
+                <div style={{ marginBottom: "1rem" }}>
+                  <label>
+                    Branding-Farbe:{" "}
+                    <input
+                      type="color"
+                      value={brandingColor}
+                      onChange={handleBrandingColorChange}
+                      style={{ width: "100%", height: "40px", cursor: "pointer" }}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
 
             <button
               onClick={() => setShowSettings(false)}
