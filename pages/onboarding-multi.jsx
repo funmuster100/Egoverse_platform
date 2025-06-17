@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
+import StyleTest from "../components/StyleTest"; // neues Modul eingebunden
 
 const DIALECT_OPTIONS = [
   "hochdeutsch", "schwäbisch", "bayrisch", "berlinerisch",
@@ -57,10 +58,13 @@ export default function Onboarding() {
   const [answers, setAnswers] = useState({});
   const [avatar, setAvatar] = useState(null);
   const [brandingLogo, setBrandingLogo] = useState(null);
+const [styleProfile, setStyleProfile] = useState(null);
+
 
   const currentQuestion = questions[step];
   const isAvatarStep = step === questions.length;
-
+const isStyleTestStep = step === questions.length + 1;
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "origin") {
@@ -231,7 +235,7 @@ export default function Onboarding() {
       Zurück
     </button>
   )}
-
+{!isStyleTestStep && (
   <button
     onClick={next}
     style={{
@@ -249,6 +253,7 @@ export default function Onboarding() {
   >
     {isAvatarStep ? "Fertig" : "Weiter"}
   </button>
+ )}
 </div>
  </div>
     </div>
