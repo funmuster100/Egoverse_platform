@@ -4,7 +4,6 @@ import Image from "next/image";
 import styles from "../styles/Chat.module.css";
 
 export default function Chat() {
-  // States
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState(null);
@@ -21,7 +20,6 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Load profile, history, theme
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
     if (p) {
@@ -37,19 +35,16 @@ export default function Chat() {
     setDarkMode(document.documentElement.dataset.theme === "dark");
   }, []);
 
-  // Auto-scroll on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Persist history
   useEffect(() => {
     if (messages.length) {
       localStorage.setItem("ego_chat_history", JSON.stringify(messages));
     }
   }, [messages]);
 
-  // Persist profile changes
   useEffect(() => {
     if (!profile) return;
     const updated = { ...profile, mode, lang, brandingLogo, brandingColor };
@@ -57,7 +52,6 @@ export default function Chat() {
     localStorage.setItem("ego_profile", JSON.stringify(updated));
   }, [mode, lang, brandingLogo, brandingColor]);
 
-  // Theme toggle
   const toggleTheme = () => {
     const html = document.documentElement;
     const next = html.dataset.theme === "dark" ? "light" : "dark";
@@ -65,24 +59,19 @@ export default function Chat() {
     setDarkMode(next === "dark");
   };
 
-  // Send message with windowing (last 10 messages)
   const send = async () => {
     if (!input.trim()) return;
 
-    // 1) append user message
     const updated = [...messages, { role: "user", content: input }];
     setMessages(updated);
     setInput("");
     setIsTyping(true);
 
-    // 2) prepare profile
     const safeProfile = { ...profile };
     delete safeProfile.brandingLogo;
 
-    // 3) window the last 10 messages
     const recent = updated.slice(-10);
 
-    // 4) call API
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -93,28 +82,26 @@ export default function Chat() {
         messages: recent,
       }),
     });
+
     if (!res.ok) {
       console.error("Chat API Error:", await res.text());
       setIsTyping(false);
       return;
     }
-    const { reply } = await res.json();
 
-    // 5) append assistant reply
+    const { reply } = await res.json();
     setMessages([...updated, { role: "assistant", content: reply }]);
     setIsTyping(false);
-
-    // 6) return focus to input
     inputRef.current?.focus();
   };
 
-  // Avatar logic
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
     coach: "/avatars/bot_coach.jpeg",
     mentor: "/avatars/bot_mentor.jpeg",
     kritiker: "/avatars/bot_kritiker.jpeg",
   };
+
   const getAvatar = (role) =>
     role === "user"
       ? profile?.avatar?.startsWith("data:image")
@@ -122,7 +109,6 @@ export default function Chat() {
         : "/avatars/user.png"
       : BOT_AVATARS[mode] || BOT_AVATARS.default;
 
-  // Upload handlers
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -134,6 +120,7 @@ export default function Chat() {
     };
     r.readAsDataURL(file);
   };
+
   const handleBrandingLogoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -141,6 +128,7 @@ export default function Chat() {
     r.onload = () => setBrandingLogo(r.result);
     r.readAsDataURL(file);
   };
+
   const handleBrandingColorChange = (e) =>
     setBrandingColor(e.target.value);
 
@@ -150,7 +138,7 @@ export default function Chat() {
         className={styles["chat-container"]}
         style={{ borderTopColor: brandingColor }}
       >
-        {/* Chat Header */}
+        {/* Header */}
         <div
           className={styles["chat-header"]}
           style={{ borderBottomColor: brandingColor }}
@@ -191,16 +179,12 @@ export default function Chat() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={toggleTheme} title="Theme wechseln">
-              🌓
-            </button>
-            <button onClick={() => setShowSettings(true)} title="Einstellungen">
-              ⚙️
-            </button>
+            <button onClick={toggleTheme}>🌓</button>
+            <button onClick={() => setShowSettings(true)}>⚙️</button>
           </div>
         </div>
 
-        {/* Mode selector */}
+        {/* Mode */}
         <div className={styles["chat-mode-selector"]}>
           <label>Modus:</label>
           <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -220,7 +204,6 @@ export default function Chat() {
           </button>
         </div>
 
-        {/* Mode indicator */}
         <div className={styles["chat-mode-indicator"]}>
           Aktueller Modus: <strong>{mode}</strong>
         </div>
@@ -261,21 +244,23 @@ export default function Chat() {
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder="Frag dein Ego..."
           />
-          <button onClick={send} style={{ background: brandingColor, color: "#fff" }}>
+          <button onClick={send} style={{ background: brandingColor }}>
             Senden
           </button>
         </div>
       </div>
 
-      {/* Settings Modal (unchanged) */}
+      {/* Settings */}
       {showSettings && (
         <div
           className={styles["settings-modal"]}
           onClick={() => setShowSettings(false)}
         >
-          <div className={styles["settings-content"]} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles["settings-content"]}
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2>Einstellungen</h2>
-            {/* … deine bestehenden Felder … */}
             {profile?.isInfluencer === "yes" && (
               <>
                 <hr />
