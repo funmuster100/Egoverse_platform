@@ -59,7 +59,7 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(null);
   const [brandingLogo, setBrandingLogo] = useState(null);
   const [styleProfile, setStyleProfile] = useState([]);
-
+const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebiger Startwert
   const currentQuestion = questions[step];
   const isAvatarStep = step === questions.length;
   const isStyleTestStep = step === questions.length + 1;
