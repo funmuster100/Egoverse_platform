@@ -22,12 +22,12 @@ export default function Chat() {
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
-    if (parsed.styleProfile) {
-  console.log("Gelernter Stil:", parsed.styleProfile);
-}
     if (p) {
       const parsed = JSON.parse(p);
-      setProfile(parsed);
+        if (parsed.styleProfile) {
+    console.log("Gelernter Stil:", parsed.styleProfile);
+  }
+        setProfile(parsed);
       if (parsed.brandingLogo) setBrandingLogo(parsed.brandingLogo);
       if (parsed.brandingColor) setBrandingColor(parsed.brandingColor);
       if (parsed.mode) setMode(parsed.mode);
