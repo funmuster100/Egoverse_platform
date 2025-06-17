@@ -26,26 +26,32 @@
 
 /* Header */
 .chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(20px);
   border-radius: 16px;
   padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  flex-wrap: wrap;
 }
 
 .chat-header-left {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex: 1;
+  min-width: 200px;
 }
 
 .chat-header-right {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 100px;
 }
 
 .chat-header-right button {
@@ -259,15 +265,18 @@
     width: 100%;
   }
 
-  .chat-header,
-  .chat-mode-selector {
+  .chat-header {
     flex-direction: column;
-    align-items: flex-start;
+    gap: 12px;
   }
 
   .chat-header-right {
-    align-self: stretch;
-    justify-content: flex-start;
-    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .chat-mode-selector {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
