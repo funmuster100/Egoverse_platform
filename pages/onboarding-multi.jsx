@@ -250,7 +250,7 @@ export default function Onboarding() {
     {isAvatarStep ? "Fertig" : "Weiter"}
   </button>
 </div>
- 
+ </div>
     </div>
   );
 }
