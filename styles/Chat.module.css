@@ -7,6 +7,11 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
 /* Container */
 .chat-container {
   display: flex;
@@ -35,6 +40,27 @@
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.chat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-header-right button {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  border: none;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.chat-header-right button:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .branding-logo {
@@ -164,11 +190,6 @@
   animation: typing 1.2s infinite ease-in-out;
 }
 
-@keyframes typing {
-  0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
-}
-
 /* Eingabefeld */
 .chat-input {
   display: flex;
@@ -242,5 +263,11 @@
   .chat-mode-selector {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .chat-header-right {
+    align-self: stretch;
+    justify-content: flex-start;
+    margin-top: 10px;
   }
 }
