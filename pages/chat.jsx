@@ -18,7 +18,7 @@ export default function Chat() {
   const [brandingLogo, setBrandingLogo] = useState(null);
   const [brandingColor, setBrandingColor] = useState("#00ff88");
 
-  // Load profile, chat history and theme on mount
+  // Load profile, history, theme
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
     if (p) {
@@ -31,104 +31,107 @@ export default function Chat() {
     }
     const saved = localStorage.getItem("ego_chat_history");
     if (saved) setMessages(JSON.parse(saved));
-    const theme = document.documentElement.dataset.theme;
-    setDarkMode(theme === "dark");
+    setDarkMode(document.documentElement.dataset.theme === "dark");
   }, []);
 
-  // Save messages to localStorage on change
+  // Persist history
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length) {
       localStorage.setItem("ego_chat_history", JSON.stringify(messages));
     }
   }, [messages]);
 
-  // Save mode & lang & branding changes to profile in localStorage
+  // Persist profile changes
   useEffect(() => {
     if (!profile) return;
-    const updatedProfile = {
-      ...profile,
-      mode,
-      lang,
-      brandingLogo,
-      brandingColor,
-    };
-    setProfile(updatedProfile);
-    localStorage.setItem("ego_profile", JSON.stringify(updatedProfile));
+    const updated = { ...profile, mode, lang, brandingLogo, brandingColor };
+    setProfile(updated);
+    localStorage.setItem("ego_profile", JSON.stringify(updated));
   }, [mode, lang, brandingLogo, brandingColor]);
 
-  // Theme toggler
+  // Theme toggle
   const toggleTheme = () => {
     const html = document.documentElement;
-    const newTheme = html.dataset.theme === "dark" ? "light" : "dark";
-    html.dataset.theme = newTheme;
-    setDarkMode(newTheme === "dark");
+    const next = html.dataset.theme === "dark" ? "light" : "dark";
+    html.dataset.theme = next;
+    setDarkMode(next === "dark");
   };
 
-  // Send message handler with safe profile (ohne großes Bild)
+  // Send message with windowing (last 10 messages)
   const send = async () => {
     if (!input.trim()) return;
+
+    // 1) append user message
     const updated = [...messages, { role: "user", content: input }];
     setMessages(updated);
     setInput("");
     setIsTyping(true);
 
-    // Profil kopieren und große Daten entfernen
+    // 2) prepare profile
     const safeProfile = { ...profile };
-    if (safeProfile.brandingLogo) delete safeProfile.brandingLogo;
+    delete safeProfile.brandingLogo;
 
+    // 3) window the last 10 messages
+    const recent = updated.slice(-10);
+
+    // 4) call API
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, profile: safeProfile, mode, lang }),
+      body: JSON.stringify({
+        profile: safeProfile,
+        mode,
+        lang,
+        messages: recent
+      }),
     });
-    const data = await res.json();
-    setMessages([...updated, { role: "assistant", content: data.reply }]);
+    if (!res.ok) {
+      console.error("Chat API Error:", await res.text());
+      setIsTyping(false);
+      return;
+    }
+    const { reply } = await res.json();
+
+    // 5) append assistant reply
+    setMessages([...updated, { role: "assistant", content: reply }]);
     setIsTyping(false);
   };
 
-  // Avatar management
+  // Avatar logic
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
     coach: "/avatars/bot_coach.jpeg",
     mentor: "/avatars/bot_mentor.jpeg",
     kritiker: "/avatars/bot_kritiker.jpeg",
   };
+  const getAvatar = (role) =>
+    role === "user"
+      ? profile?.avatar?.startsWith("data:image")
+        ? profile.avatar
+        : "/avatars/user.png"
+      : BOT_AVATARS[mode] || BOT_AVATARS.default;
 
-  const getAvatar = (role) => {
-    if (role === "user") {
-      if (profile?.avatar?.startsWith("data:image")) return profile.avatar;
-      return "/avatars/user.png";
-    }
-    return BOT_AVATARS[mode] || BOT_AVATARS.default;
-  };
-
+  // Upload handlers
   const handleAvatarUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const updatedProfile = { ...profile, avatar: reader.result };
-      setProfile(updatedProfile);
-      localStorage.setItem("ego_profile", JSON.stringify(updatedProfile));
+    const r = new FileReader();
+    r.onload = () => {
+      const upd = { ...profile, avatar: r.result };
+      setProfile(upd);
+      localStorage.setItem("ego_profile", JSON.stringify(upd));
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
   };
-
-  // Branding logo upload
   const handleBrandingLogoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setBrandingLogo(reader.result);
-    };
-    reader.readAsDataURL(file);
+    const r = new FileReader();
+    r.onload = () => setBrandingLogo(r.result);
+    r.readAsDataURL(file);
   };
-
-  // Branding color change
-  const handleBrandingColorChange = (e) => {
+  const handleBrandingColorChange = (e) =>
     setBrandingColor(e.target.value);
-  };
 
   return (
     <>
@@ -142,6 +145,13 @@ export default function Chat() {
           style={{ borderBottomColor: brandingColor }}
         >
           <div className={styles["chat-header-left"]}>
+            {brandingLogo && (
+              <img
+                src={brandingLogo}
+                alt="Branding Logo"
+                className={styles["branding-logo"]}
+              />
+            )}
             <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
               <Image
                 src={getAvatar("user")}
@@ -152,8 +162,8 @@ export default function Chat() {
               />
             </label>
             <input
-              type="file"
               id="avatar-upload"
+              type="file"
               accept="image/*"
               style={{ display: "none" }}
               onChange={handleAvatarUpload}
@@ -161,64 +171,42 @@ export default function Chat() {
             <div>
               <div className={styles["chat-title"]}>Du (Ego)</div>
               <div className={styles["chat-status"]}>
-                <span className={styles["status-dot"]} /> Online
+                <span
+                  className={styles["status-dot"]}
+                  style={{ background: brandingColor }}
+                />{" "}
+                Online
               </div>
             </div>
           </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              style={{
-                background: "transparent",
-                border: "none",
-                fontSize: "1.2rem",
-                cursor: "pointer",
-                color: "var(--text)",
-              }}
-              title="Theme wechseln"
-            >
+          <div style={{ display: "flex", gap: 12 }}>
+            <button onClick={toggleTheme} title="Theme wechseln">
               🌓
             </button>
-
-            {/* Settings button */}
-            <button
-              className="chat-settings-btn"
-              onClick={() => setShowSettings(true)}
-              title="Einstellungen öffnen"
-              style={{
-                background: "transparent",
-                border: "none",
-                fontSize: "1.5rem",
-                cursor: "pointer",
-                color: "var(--text)",
-              }}
-            >
+            <button onClick={() => setShowSettings(true)} title="Einstellungen">
               ⚙️
             </button>
           </div>
         </div>
 
-        {/* Mode selector + reset */}
+        {/* Mode selector */}
         <div className={styles["chat-mode-selector"]}>
-          <label>Modus: </label>
+          <label>Modus:</label>
           <select value={mode} onChange={(e) => setMode(e.target.value)}>
             <option value="default">🧠 Ich selbst</option>
             <option value="coach">🗣️ Coach</option>
             <option value="mentor">🧓 Mentor</option>
             <option value="kritiker">⚡ Kritiker</option>
           </select>
-          <div className={styles["chat-reset"]}>
-            <button
-              onClick={() => {
-                setMessages([]);
-                localStorage.removeItem("ego_chat_history");
-              }}
-            >
-              🗑️ Verlauf löschen
-            </button>
-          </div>
+          <button
+            className={styles["chat-reset"]}
+            onClick={() => {
+              setMessages([]);
+              localStorage.removeItem("ego_chat_history");
+            }}
+          >
+            🗑️
+          </button>
         </div>
 
         {/* Mode indicator */}
@@ -260,7 +248,9 @@ export default function Chat() {
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder="Frag dein Ego..."
           />
-          <button onClick={send}>Senden</button>
+          <button onClick={send} style={{ background: brandingColor, color: "#fff" }}>
+            Senden
+          </button>
         </div>
       </div>
 
@@ -269,142 +259,28 @@ export default function Chat() {
         <div
           className={styles["settings-modal"]}
           onClick={() => setShowSettings(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: "var(--bg)",
-              padding: "2rem",
-              borderRadius: "12px",
-              maxWidth: "400px",
-              width: "100%",
-              color: "var(--text)",
-              maxHeight: "90vh",
-              overflowY: "auto",
-            }}
-          >
+          <div className={styles["settings-content"]} onClick={(e) => e.stopPropagation()}>
             <h2>Einstellungen</h2>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label>
-                Modus wählen:{" "}
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                  style={{ padding: "6px", fontSize: "1rem", borderRadius: "6px" }}
-                >
-                  <option value="default">Ich selbst</option>
-                  <option value="coach">Coach</option>
-                  <option value="mentor">Mentor</option>
-                  <option value="kritiker">Kritiker</option>
-                </select>
-              </label>
-            </div>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label>
-                Sprache:{" "}
-                <select
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value)}
-                  style={{ padding: "6px", fontSize: "1rem", borderRadius: "6px" }}
-                >
-                  <option value="de">Deutsch</option>
-                  <option value="en">Englisch</option>
-                </select>
-              </label>
-            </div>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label>
-                Sprachausgabe aktivieren:{" "}
-                <input
-                  type="checkbox"
-                  checked={voiceEnabled}
-                  onChange={(e) => setVoiceEnabled(e.target.checked)}
-                  style={{ transform: "scale(1.2)", marginLeft: "8px" }}
-                />
-              </label>
-            </div>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label>
-                Geschwindigkeit der Sprachausgabe:{" "}
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  value={textSpeed}
-                  onChange={(e) => setTextSpeed(Number(e.target.value))}
-                />
-              </label>
-            </div>
-
-            {/* Branding nur wenn Influencer */}
+            {/* … deine bestehenden Felder … */}
             {profile?.isInfluencer === "yes" && (
               <>
-                <hr style={{ margin: "1.5rem 0" }} />
-                <h3>Branding Einstellungen</h3>
-
-                <div style={{ marginBottom: "1rem" }}>
-                  <label>
-                    Logo hochladen:{" "}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleBrandingLogoUpload}
-                    />
-                  </label>
-                  {brandingLogo && (
-                    <img
-                      src={brandingLogo}
-                      alt="Branding Logo"
-                      style={{
-                        maxWidth: "100px",
-                        marginTop: "0.5rem",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  )}
-                </div>
-
-                <div style={{ marginBottom: "1rem" }}>
-                  <label>
-                    Branding-Farbe:{" "}
-                    <input
-                      type="color"
-                      value={brandingColor}
-                      onChange={handleBrandingColorChange}
-                      style={{ width: "100%", height: "40px", cursor: "pointer" }}
-                    />
-                  </label>
-                </div>
+                <hr />
+                <h3>Branding</h3>
+                <label>
+                  Logo:
+                  <input type="file" accept="image/*" onChange={handleBrandingLogoUpload} />
+                </label>
+                {brandingLogo && (
+                  <img src={brandingLogo} alt="Logo" className={styles["branding-logo"]} />
+                )}
+                <label>
+                  Farbe:
+                  <input type="color" value={brandingColor} onChange={handleBrandingColorChange} />
+                </label>
               </>
             )}
-
-            <button
-              onClick={() => setShowSettings(false)}
-              style={{
-                backgroundColor: "var(--primary)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "10px 16px",
-                cursor: "pointer",
-              }}
-            >
-              Schließen
-            </button>
+            <button onClick={() => setShowSettings(false)}>Schließen</button>
           </div>
         </div>
       )}
