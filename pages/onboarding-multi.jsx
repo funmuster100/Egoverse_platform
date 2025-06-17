@@ -1,8 +1,9 @@
 
+// pages/onboarding.jsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
-import StyleTest from "../components/StyleTest"; // neues Modul eingebunden
+import StyleTest from "../components/StyleTest"; // eingebunden
 
 const DIALECT_OPTIONS = [
   "hochdeutsch", "schwäbisch", "bayrisch", "berlinerisch",
@@ -58,13 +59,13 @@ export default function Onboarding() {
   const [answers, setAnswers] = useState({});
   const [avatar, setAvatar] = useState(null);
   const [brandingLogo, setBrandingLogo] = useState(null);
-const [styleProfile, setStyleProfile] = useState(null);
-
+  const [styleTestDone, setStyleTestDone] = useState(false);
+  const [styleData, setStyleData] = useState([]);
 
   const currentQuestion = questions[step];
   const isAvatarStep = step === questions.length;
-const isStyleTestStep = step === questions.length + 1;
-  
+  const isStyleTestStep = step === questions.length + 1;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "origin") {
@@ -80,18 +81,21 @@ const isStyleTestStep = step === questions.length + 1;
   };
 
   const next = () => {
-    if (step < questions.length) {
+    if (step < questions.length + 1) {
       setStep(step + 1);
     } else {
-      const profile = { ...answers };
-      if (avatar) profile.avatar = avatar;
-      if (brandingLogo && answers.isInfluencer === "yes") profile.brandingLogo = brandingLogo;
+      const profile = {
+        ...answers,
+        avatar,
+        brandingLogo: answers.isInfluencer === "yes" ? brandingLogo : null,
+        styleProfile: styleData,
+      };
       localStorage.setItem("ego_profile", JSON.stringify(profile));
       router.push("/summary");
     }
   };
 
-  function guessDialect(origin) {
+  const guessDialect = (origin) => {
     const loc = origin.toLowerCase();
     if (loc.includes("ravensburg") || loc.includes("wilhelmsdorf")) return "schwäbisch";
     if (loc.includes("münchen")) return "bayrisch";
@@ -100,29 +104,14 @@ const isStyleTestStep = step === questions.length + 1;
     if (loc.includes("hamburg")) return "norddeutsch";
     if (loc.includes("leipzig")) return "sächsisch";
     return "hochdeutsch";
-  }
+  };
 
-  const progressPercent = Math.round((step / (questions.length + 1)) * 100);
+  const progressPercent = Math.round((step / (questions.length + 2)) * 100);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
-      color: "#eee",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "2rem",
-      fontFamily: "'Segoe UI', sans-serif",
-      flexDirection: "column",
-    }}>
-      <div style={{ width: "100%", maxWidth: "600px", marginBottom: "1rem" }}>
-        <div style={{
-          height: "8px",
-          background: "#222",
-          borderRadius: "8px",
-          overflow: "hidden",
-        }}>
+    <div style={{ minHeight: "100vh", background: "#111", color: "#eee", padding: "2rem" }}>
+      <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+        <div style={{ height: "8px", background: "#222", borderRadius: "8px", overflow: "hidden", marginBottom: "1rem" }}>
           <div style={{
             width: `${progressPercent}%`,
             height: "100%",
@@ -130,132 +119,108 @@ const isStyleTestStep = step === questions.length + 1;
             transition: "width 0.3s ease",
           }} />
         </div>
-        <div style={{
-          marginTop: "0.4rem",
-          fontSize: "0.85rem",
-          color: "#aaa",
-          textAlign: "right",
-        }}>
-          Schritt {step + 1} von {questions.length + 1}
-        </div>
-      </div>
 
-      <div style={{
-        background: "rgba(255, 255, 255, 0.04)",
-        border: "1px solid rgba(255, 255, 255, 0.06)",
-        borderRadius: "16px",
-        padding: "2rem",
-        maxWidth: "600px",
-        width: "100%",
-        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(6px)",
-      }}>
-        {isAvatarStep ? (
-          <>
-            <h2>Wähle ein Bild für dein Ego</h2>
-            <AvatarUpload onAvatarSelect={setAvatar} />
-            {answers.isInfluencer === "yes" && (
+        {isStyleTestStep ? (
+          <StyleTest
+            onComplete={(data) => {
+              setStyleData(data);
+              next();
+            }}
+          />
+        ) : (
+          <div style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "16px",
+            padding: "2rem",
+            boxShadow: "0 4px 30px rgba(0,0,0,0.3)",
+            backdropFilter: "blur(6px)",
+          }}>
+            {isAvatarStep ? (
               <>
-                <hr style={{ margin: "1.5rem 0" }} />
-                <h3>Branding-Logo hochladen (optional)</h3>
-                <input type="file" accept="image/*" onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = () => setBrandingLogo(reader.result);
-                  reader.readAsDataURL(file);
-                }} />
-                {brandingLogo && (
-                  <img src={brandingLogo} alt="Logo" style={{ maxWidth: "100px", marginTop: "1rem" }} />
+                <h2>Wähle ein Bild für dein Ego</h2>
+                <AvatarUpload onAvatarSelect={setAvatar} />
+                {answers.isInfluencer === "yes" && (
+                  <>
+                    <hr style={{ margin: "1.5rem 0" }} />
+                    <h3>Branding-Logo hochladen (optional)</h3>
+                    <input type="file" accept="image/*" onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => setBrandingLogo(reader.result);
+                      reader.readAsDataURL(file);
+                    }} />
+                    {brandingLogo && (
+                      <img src={brandingLogo} alt="Logo" style={{ maxWidth: "100px", marginTop: "1rem" }} />
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <h2>{currentQuestion.label}</h2>
+                {currentQuestion.type === "select" ? (
+                  <select
+                    name={currentQuestion.key}
+                    value={answers[currentQuestion.key] || ""}
+                    onChange={handleChange}
+                    style={{
+                      width: "100%", padding: "14px", fontSize: "1rem",
+                      borderRadius: "8px", background: "#222", border: "1px solid #333",
+                      color: "#eee", marginBottom: "0.8rem"
+                    }}
+                  >
+                    <option value="">Bitte wählen</option>
+                    {currentQuestion.options.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name={currentQuestion.key}
+                    value={answers[currentQuestion.key] || ""}
+                    onChange={handleChange}
+                    onKeyDown={(e) => e.key === "Enter" && next()}
+                    style={{
+                      width: "100%", padding: "14px", fontSize: "1rem",
+                      background: "#222", border: "1px solid #333",
+                      color: "#eee", borderRadius: "8px", marginBottom: "0.8rem"
+                    }}
+                  />
+                )}
+                {currentQuestion.tip && (
+                  <p style={{ fontSize: "0.9rem", color: "#aaa" }}>{currentQuestion.tip}</p>
                 )}
               </>
             )}
-          </>
-        ) : (
-          <>
-            <h2>{currentQuestion.label}</h2>
-            {currentQuestion.type === "select" ? (
-              <select
-                name={currentQuestion.key}
-                value={answers[currentQuestion.key] || ""}
-                onChange={handleChange}
+
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
+              {step > 0 && (
+                <button
+                  onClick={() => setStep(step - 1)}
+                  style={{
+                    padding: "12px 20px", background: "#333", color: "#fff",
+                    borderRadius: "8px", border: "none", cursor: "pointer"
+                  }}
+                >
+                  Zurück
+                </button>
+              )}
+              <button
+                onClick={next}
                 style={{
-                  width: "100%", padding: "14px", fontSize: "1rem",
-                  borderRadius: "8px", background: "#222", border: "1px solid #333",
-                  color: "#eee", marginBottom: "0.8rem"
+                  padding: "12px 20px", background: "#10b981", color: "#111",
+                  borderRadius: "8px", border: "none", fontWeight: "bold", cursor: "pointer"
                 }}
               >
-                <option value="">Bitte wählen</option>
-                {currentQuestion.options.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type="text"
-                name={currentQuestion.key}
-                value={answers[currentQuestion.key] || ""}
-                onChange={handleChange}
-                onKeyDown={(e) => e.key === "Enter" && next()}
-                style={{
-                  width: "100%", padding: "14px", fontSize: "1rem",
-                  background: "#222", border: "1px solid #333",
-                  color: "#eee", borderRadius: "8px", marginBottom: "0.8rem"
-                }}
-              />
-            )}
-            {currentQuestion.tip && (
-              <p style={{ fontSize: "0.9rem", color: "#aaa" }}>{currentQuestion.tip}</p>
-            )}
-          </>
+                {isAvatarStep ? "Weiter zum Testchat" : "Weiter"}
+              </button>
+            </div>
+          </div>
         )}
-<div style={{
-  display: "flex",
-  gap: "10px",
-  justifyContent: "space-between",
-  marginTop: "1rem",
-  flexWrap: "wrap"
-}}>
-  {step > 0 && (
-    <button
-      onClick={() => setStep(step - 1)}
-      style={{
-        flex: 1,
-        minWidth: "120px",
-        padding: "14px",
-        fontSize: "1rem",
-        fontWeight: "bold",
-        borderRadius: "8px",
-        border: "none",
-        background: "#444",
-        color: "#fff",
-        cursor: "pointer"
-      }}
-    >
-      Zurück
-    </button>
-  )}
-{!isStyleTestStep && (
-  <button
-    onClick={next}
-    style={{
-      flex: 1,
-      minWidth: "120px",
-      padding: "14px",
-      fontSize: "1rem",
-      fontWeight: "bold",
-      borderRadius: "8px",
-      border: "none",
-      background: "linear-gradient(to right, #00ffcc, #00ff88)",
-      color: "#111",
-      cursor: "pointer"
-    }}
-  >
-    {isAvatarStep ? "Fertig" : "Weiter"}
-  </button>
- )}
-</div>
- </div>
+      </div>
     </div>
   );
 }
