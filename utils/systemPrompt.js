@@ -1,8 +1,8 @@
 
-export function generateSystemPrompt(profile, mode = "default", lang = "de") {
-  if (!profile || Object.keys(profile).length === 0) {
-    return `Du bist ein digitaler Zwilling – du antwortest menschlich, emotional, klar und ohne KI-Floskeln. Sprich natürlich und individuell.`;
-  }
+export function createSystemPrompt(profile) {
+  const style = profile?.styleProfile?.join(" ") || "";
+  return `Du bist ein digitaler Zwilling. Nutze diesen Kommunikationsstil: ${style}. Sprich so wie der Nutzer.`;
+}
 
   const {
     name,
