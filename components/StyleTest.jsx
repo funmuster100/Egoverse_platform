@@ -1,83 +1,120 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const styleQuestions = [
-  "Wie war dein Tag bisher?",
-  "Was regt dich momentan am meisten auf?",
-  "Wie würdest du einem Freund ein Problem erklären?",
-  "Was bedeutet Glück für dich?",
-  "Welche Rolle spielen Emotionen in deinem Alltag?",
+const QUESTIONS = [
+  "Hey! 😊 Stell dir vor, ich bin dein Ego – wie würdest du mich begrüßen?",
+  "Was war heute das erste, was dir durch den Kopf ging?",
+  "Wie würdest du einem Freund erzählen, wie dein Tag gerade läuft?",
+  "Was bringt dich auf die Palme? 🙃",
+  "Und was bringt dich zum Lachen – so richtig?",
+  "Wie würdest du reagieren, wenn ich gerade mies drauf wäre?",
+  "Hast du einen Spruch oder Satz, den du oft verwendest?",
+  "Zum Schluss: Was sollte ich unbedingt über dich wissen, damit ich wie du klinge?"
 ];
 
-export default function StyleTest({ onFinish }) {
+export default function StyleTest({ onComplete }) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  const [messages, setMessages] = useState([{ from: "bot", text: QUESTIONS[0] }]);
+  const [input, setInput] = useState("");
+  const [styleProfile, setStyleProfile] = useState([]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const input = e.target.elements.response.value.trim();
-    if (input) {
-      setAnswers((prev) => [...prev, input]);
-      e.target.reset();
-      if (step < styleQuestions.length - 1) {
+  const sendAnswer = () => {
+    if (!input.trim()) return;
+
+    const updated = [
+      ...messages,
+      { from: "user", text: input },
+    ];
+
+    setMessages(updated);
+    setStyleProfile((prev) => [...prev, input]);
+    setInput("");
+
+    if (step < QUESTIONS.length - 1) {
+      setTimeout(() => {
+        setMessages([...updated, { from: "bot", text: QUESTIONS[step + 1] }]);
         setStep(step + 1);
-      } else {
-        const styleProfile = {
-          emojiUse: answers.join(" ").match(/[\u{1F600}-\u{1F6FF}]/gu)?.length || 0,
-          avgLength: Math.round(answers.reduce((sum, a) => sum + a.length, 0) / answers.length),
-          punctuation: answers.join(" ").match(/[!?]/g)?.length || 0,
-          sample: answers.join("\n"),
-        };
-        localStorage.setItem("styleProfile", JSON.stringify(styleProfile));
-        onFinish();
-      }
+      }, 700);
+    } else {
+      setTimeout(() => {
+        onComplete(styleProfile.concat(input));
+      }, 500);
     }
   };
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.03)",
-      borderRadius: "16px",
+      background: "rgba(255, 255, 255, 0.05)",
       padding: "2rem",
-      color: "#eee",
+      borderRadius: "16px",
       maxWidth: "600px",
-      margin: "0 auto",
-      marginTop: "2rem",
+      margin: "2rem auto",
+      fontFamily: "'Segoe UI', sans-serif",
+      color: "#eee",
+      boxShadow: "0 0 20px rgba(0,0,0,0.3)",
     }}>
-      <h2 style={{ marginBottom: "1rem" }}>
-        Schreibstil-Test ({step + 1}/{styleQuestions.length})
-      </h2>
-      <p style={{ marginBottom: "1rem", color: "#aaa" }}>{styleQuestions[step]}</p>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          name="response"
-          rows={4}
+      <h2 style={{ marginBottom: "1rem" }}>🗣 Schreibstil-Test</h2>
+
+      <div style={{
+        maxHeight: "300px",
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        padding: "1rem",
+        background: "#111",
+        borderRadius: "12px",
+        fontSize: "1rem",
+        lineHeight: "1.5",
+      }}>
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            style={{
+              alignSelf: msg.from === "user" ? "flex-end" : "flex-start",
+              background: msg.from === "user" ? "#2563eb" : "rgba(255,255,255,0.1)",
+              padding: "10px 14px",
+              borderRadius: "14px",
+              maxWidth: "80%",
+              color: "#fff",
+            }}
+          >
+            {msg.text}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: "1rem", display: "flex", gap: "8px" }}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendAnswer()}
+          placeholder="Deine Antwort..."
           style={{
-            width: "100%",
-            padding: "1rem",
+            flex: 1,
+            padding: "12px",
             fontSize: "1rem",
+            borderRadius: "10px",
+            border: "1px solid #333",
             background: "#222",
-            border: "1px solid #444",
-            borderRadius: "8px",
             color: "#eee",
-            resize: "none",
           }}
-          autoFocus
         />
         <button
-          type="submit"
+          onClick={sendAnswer}
           style={{
-            marginTop: "1rem",
-            padding: "0.75rem 1.5rem",
-            background: "linear-gradient(to right, #00ffcc, #00ff88)",
+            background: "#10b981",
+            color: "#fff",
             border: "none",
-            borderRadius: "8px",
+            padding: "0 18px",
+            borderRadius: "10px",
             fontWeight: "bold",
+            fontSize: "1rem",
             cursor: "pointer",
           }}
         >
-          Weiter
+          Senden
         </button>
-      </form>
+      </div>
     </div>
   );
 }
