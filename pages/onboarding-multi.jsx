@@ -91,6 +91,9 @@ export default function Onboarding() {
         styleProfile: styleData,
       };
       localStorage.setItem("ego_profile", JSON.stringify(profile));
+      if (styleProfile) {
+  profile.styleProfile = styleProfile;
+}
       router.push("/summary");
     }
   };
