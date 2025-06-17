@@ -32,7 +32,7 @@
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(20px);
   border-radius: 16px;
-  padding: 16px;
+  padding: 10px 14px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   flex-wrap: wrap;
 }
@@ -144,14 +144,13 @@
 
 /* Nachrichtenbereich */
 .chat-messages {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1;
+  max-height: calc(100dvh - 240px); /* statt -280px oder mehr */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 8px 4px;
-  max-height: calc(100dvh - 250px); /* Dynamisch, je nach anderen Komponenten */
+  padding: 4px 8px 0;
 }
 
 .bubble-container {
@@ -201,14 +200,14 @@
 /* Eingabefeld */
 .chat-input {
   display: flex;
-  gap: 10px;
-  padding-top: 12px;
+  gap: 8px;
+  padding-top: 6px;
   background: transparent;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 12px;
+  padding: 8px 10px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255,255,255,0.05);
@@ -221,7 +220,7 @@
   background: #10b981;
   color: white;
   border: none;
-  padding: 12px 20px;
+  padding: 8px 16px;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 14px;
