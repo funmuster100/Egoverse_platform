@@ -1,6 +1,6 @@
 
 import OpenAI from "openai";
-import { generateSystemPrompt } from "../../utils/systemPrompt";
+import { createSystemPrompt } from "../../utils/systemPrompt";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   try {
     // voller System-Prompt
-    const systemPrompt = generateSystemPrompt(profile, mode, lang);
+    const systemPrompt = createSystemPrompt(profile, mode, lang);
 
     // kombiniere system + Verlauf
     const chatMessages = [
