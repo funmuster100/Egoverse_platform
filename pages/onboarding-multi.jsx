@@ -122,11 +122,15 @@ export default function Onboarding() {
 
         {isStyleTestStep ? (
           <StyleTest
-            onComplete={(data) => {
-              setStyleData(data);
-              next();
-            }}
-          />
+  onComplete={(data) => {
+    const profile = { ...answers };
+    if (avatar) profile.avatar = avatar;
+    if (brandingLogo && answers.isInfluencer === "yes") profile.brandingLogo = brandingLogo;
+    profile.styleProfile = data; // << Style-Daten hinzufügen
+    localStorage.setItem("ego_profile", JSON.stringify(profile));
+    next();
+  }}
+/>
         ) : (
           <div style={{
             background: "rgba(255,255,255,0.05)",
