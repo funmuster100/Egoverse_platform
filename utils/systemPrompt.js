@@ -2,7 +2,6 @@
 export function createSystemPrompt(profile, mode = "default", lang = "de") {
   const style = profile?.styleProfile?.join(" ") || "";
   
-}
 
   const {
     name,
