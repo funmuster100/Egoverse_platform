@@ -205,19 +205,52 @@ export default function Onboarding() {
             )}
           </>
         )}
+<div style={{
+  display: "flex",
+  gap: "10px",
+  justifyContent: "space-between",
+  marginTop: "1rem",
+  flexWrap: "wrap"
+}}>
+  {step > 0 && (
+    <button
+      onClick={() => setStep(step - 1)}
+      style={{
+        flex: 1,
+        minWidth: "120px",
+        padding: "14px",
+        fontSize: "1rem",
+        fontWeight: "bold",
+        borderRadius: "8px",
+        border: "none",
+        background: "#444",
+        color: "#fff",
+        cursor: "pointer"
+      }}
+    >
+      Zurück
+    </button>
+  )}
 
-        <button
-          onClick={next}
-          style={{
-            width: "100%", padding: "14px", fontSize: "1rem", fontWeight: "bold",
-            borderRadius: "8px", border: "none",
-            background: "linear-gradient(to right, #00ffcc, #00ff88)",
-            color: "#111", cursor: "pointer", marginTop: "1rem"
-          }}
-        >
-          {isAvatarStep ? "Fertig" : "Weiter"}
-        </button>
-      </div>
+  <button
+    onClick={next}
+    style={{
+      flex: 1,
+      minWidth: "120px",
+      padding: "14px",
+      fontSize: "1rem",
+      fontWeight: "bold",
+      borderRadius: "8px",
+      border: "none",
+      background: "linear-gradient(to right, #00ffcc, #00ff88)",
+      color: "#111",
+      cursor: "pointer"
+    }}
+  >
+    {isAvatarStep ? "Fertig" : "Weiter"}
+  </button>
+</div>
+ 
     </div>
   );
 }
