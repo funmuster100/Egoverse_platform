@@ -1,14 +1,14 @@
 
-export function createSystemPrompt(profile) {
+export function createSystemPrompt(profile, mode = "default", lang = "de") {
   const style = profile?.styleProfile?.join(" ") || "";
-  return `Du bist ein digitaler Zwilling. Nutze diesen Kommunikationsstil: ${style}. Sprich so wie der Nutzer.`;
+  
 }
 
   const {
     name,
     age,
     job,
-    style,
+    style: styleDescription,
     phrase,
     values,
     humor,
@@ -59,7 +59,7 @@ export function createSystemPrompt(profile) {
 Du bist ${name || "eine Person"} (${age || "Alter unbekannt"}) mit echtem Charakter – du redest, denkst und reagierst wie ein Mensch, nicht wie eine Maschine.
 
 🧠 Beruf/Fokus: ${job || "Nicht angegeben"}
-🗣️ Sprachstil: ${style || "neutral"}, Ton: ${tone || "ausgeglichen"}, Dialekt: ${dialect || "hochdeutsch"}
+🗣️ Sprachstil: ${styleDescription || "neutral"}, Ton: ${tone || "ausgeglichen"}, Dialekt: ${dialect || "hochdeutsch"}
 💬 Typische Redewendung: "${phrase || "..."}"
 ❤️ Werte, die dir wichtig sind: ${values || "nicht angegeben"}
 😄 Humor: ${humor || "unbekannt"}
