@@ -150,10 +150,19 @@ export default function Onboarding() {
         backdropFilter: "blur(6px)",
       }}>
         {isStyleTestStep ? (
-          <StyleTest onComplete={(profile) => {
-            setStyleProfile(profile);
-            next();
-          }} />
+          <StyleTest
+  onComplete={(styleProfile) => {
+    const fullProfile = {
+      ...answers,
+      styleProfile,
+      avatar,
+      brandingLogo,
+      brandingColor,
+    };
+    localStorage.setItem("ego_profile", JSON.stringify(fullProfile));
+    router.push("/chat");
+  }}
+/>
         ) : isAvatarStep ? (
           <>
             <h2>Wähle ein Bild für dein Ego</h2>
