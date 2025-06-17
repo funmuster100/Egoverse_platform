@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import styles from "../styles/Chat.module.css";
 
@@ -18,6 +18,9 @@ export default function Chat() {
   const [brandingLogo, setBrandingLogo] = useState(null);
   const [brandingColor, setBrandingColor] = useState("#00ff88");
 
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+
   // Load profile, history, theme
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
@@ -33,6 +36,11 @@ export default function Chat() {
     if (saved) setMessages(JSON.parse(saved));
     setDarkMode(document.documentElement.dataset.theme === "dark");
   }, []);
+
+  // Auto-scroll on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
   // Persist history
   useEffect(() => {
@@ -82,7 +90,7 @@ export default function Chat() {
         profile: safeProfile,
         mode,
         lang,
-        messages: recent
+        messages: recent,
       }),
     });
     if (!res.ok) {
@@ -95,6 +103,9 @@ export default function Chat() {
     // 5) append assistant reply
     setMessages([...updated, { role: "assistant", content: reply }]);
     setIsTyping(false);
+
+    // 6) return focus to input
+    inputRef.current?.focus();
   };
 
   // Avatar logic
@@ -238,11 +249,13 @@ export default function Chat() {
               <div className={styles["dot"]} />
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
         <div className={styles["chat-input"]}>
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
@@ -254,7 +267,7 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Settings Modal */}
+      {/* Settings Modal (unchanged) */}
       {showSettings && (
         <div
           className={styles["settings-modal"]}
@@ -269,14 +282,26 @@ export default function Chat() {
                 <h3>Branding</h3>
                 <label>
                   Logo:
-                  <input type="file" accept="image/*" onChange={handleBrandingLogoUpload} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBrandingLogoUpload}
+                  />
                 </label>
                 {brandingLogo && (
-                  <img src={brandingLogo} alt="Logo" className={styles["branding-logo"]} />
+                  <img
+                    src={brandingLogo}
+                    alt="Logo"
+                    className={styles["branding-logo"]}
+                  />
                 )}
                 <label>
                   Farbe:
-                  <input type="color" value={brandingColor} onChange={handleBrandingColorChange} />
+                  <input
+                    type="color"
+                    value={brandingColor}
+                    onChange={handleBrandingColorChange}
+                  />
                 </label>
               </>
             )}
