@@ -22,6 +22,9 @@ export default function Chat() {
 
   useEffect(() => {
     const p = localStorage.getItem("ego_profile");
+    if (parsed.styleProfile) {
+  console.log("Gelernter Stil:", parsed.styleProfile);
+}
     if (p) {
       const parsed = JSON.parse(p);
       setProfile(parsed);
