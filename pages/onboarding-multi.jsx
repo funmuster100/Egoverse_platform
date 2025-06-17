@@ -4,13 +4,8 @@ import { useRouter } from "next/router";
 import AvatarUpload from "../components/AvatarUpload";
 
 const DIALECT_OPTIONS = [
-  "hochdeutsch",
-  "schwäbisch",
-  "bayrisch",
-  "berlinerisch",
-  "kölsch",
-  "sächsisch",
-  "norddeutsch",
+  "hochdeutsch", "schwäbisch", "bayrisch", "berlinerisch",
+  "kölsch", "sächsisch", "norddeutsch",
 ];
 
 const questions = [
@@ -34,7 +29,6 @@ const questions = [
   { key: "parent_expectation", label: "Was wollten deine Eltern, dass du wirst?", tip: "Und wie fühlt sich das heute für dich an?" },
   { key: "future_self", label: "Was möchtest du in 10 Jahren über dich sagen können?", tip: "Schreib’s wie eine kurze Vision." },
   { key: "legacy", label: "Welche Spuren möchtest du bei anderen hinterlassen?", tip: "Was sollen Menschen mit dir verbinden?" },
-
   { key: "origin", label: "Woher kommst du?", tip: "Ort oder Region genügt – wir erkennen deinen Dialekt automatisch." },
   {
     key: "dialect",
@@ -44,7 +38,6 @@ const questions = [
     options: DIALECT_OPTIONS.map((d) => ({ value: d, label: d })),
   },
   { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
-
   {
     key: "isInfluencer",
     label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?",
@@ -65,36 +58,20 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(null);
   const [brandingLogo, setBrandingLogo] = useState(null);
 
-  function guessDialect(origin) {
-    if (!origin) return null;
-    const loc = origin.toLowerCase();
-    if (loc.includes("ravensburg") || loc.includes("weingarten") || loc.includes("wilhelmsdorf")) return "schwäbisch";
-    if (loc.includes("münchen") || loc.includes("bayern")) return "bayrisch";
-    if (loc.includes("berlin")) return "berlinerisch";
-    if (loc.includes("köln")) return "kölsch";
-    if (loc.includes("hamburg")) return "norddeutsch";
-    if (loc.includes("dresden") || loc.includes("leipzig")) return "sächsisch";
-    return "hochdeutsch";
-  }
+  const currentQuestion = questions[step];
+  const isAvatarStep = step === questions.length;
 
   const handleChange = (e) => {
-    const { type, checked, value, name } = e.target;
-
-    if (type === "checkbox") {
-      setAnswers({ ...answers, [name]: checked });
+    const { name, value } = e.target;
+    if (name === "origin") {
+      const guessed = guessDialect(value);
+      setAnswers((prev) => ({
+        ...prev,
+        origin: value,
+        dialect: !prev.dialect || prev.dialect === guessDialect(prev.origin || "") ? guessed : prev.dialect,
+      }));
     } else {
-      if (name === "origin") {
-        const guessed = guessDialect(value);
-        setAnswers((prev) => {
-          // Setze Dialekt nur, wenn er leer ist oder gleich dem alten Dialekt aus vorherigem guess
-          if (!prev.dialect || prev.dialect === guessDialect(prev.origin || "")) {
-            return { ...prev, origin: value, dialect: guessed };
-          }
-          return { ...prev, origin: value };
-        });
-      } else {
-        setAnswers({ ...answers, [name]: value });
-      }
+      setAnswers({ ...answers, [name]: value });
     }
   };
 
@@ -102,56 +79,82 @@ export default function Onboarding() {
     if (step < questions.length) {
       setStep(step + 1);
     } else {
-      const finalProfile = { ...answers };
-      if (avatar) finalProfile.avatar = avatar;
-      if (brandingLogo && answers.isInfluencer === "yes") finalProfile.brandingLogo = brandingLogo;
-      localStorage.setItem("ego_profile", JSON.stringify(finalProfile));
+      const profile = { ...answers };
+      if (avatar) profile.avatar = avatar;
+      if (brandingLogo && answers.isInfluencer === "yes") profile.brandingLogo = brandingLogo;
+      localStorage.setItem("ego_profile", JSON.stringify(profile));
       router.push("/summary");
     }
   };
 
-  const isAvatarStep = step === questions.length;
-  const currentQuestion = questions[step];
+  function guessDialect(origin) {
+    const loc = origin.toLowerCase();
+    if (loc.includes("ravensburg") || loc.includes("wilhelmsdorf")) return "schwäbisch";
+    if (loc.includes("münchen")) return "bayrisch";
+    if (loc.includes("berlin")) return "berlinerisch";
+    if (loc.includes("köln")) return "kölsch";
+    if (loc.includes("hamburg")) return "norddeutsch";
+    if (loc.includes("leipzig")) return "sächsisch";
+    return "hochdeutsch";
+  }
+
+  const progressPercent = Math.round((step / (questions.length + 1)) * 100);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
-        color: "#eee",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(to bottom, #0c0c0c, #1a1a1a)",
+      color: "#eee",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: "2rem",
+      fontFamily: "'Segoe UI', sans-serif",
+      flexDirection: "column",
+    }}>
+      <div style={{ width: "100%", maxWidth: "600px", marginBottom: "1rem" }}>
+        <div style={{
+          height: "8px",
+          background: "#222",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            width: `${progressPercent}%`,
+            height: "100%",
+            background: "linear-gradient(to right, #00ffcc, #00ff88)",
+            transition: "width 0.3s ease",
+          }} />
+        </div>
+        <div style={{
+          marginTop: "0.4rem",
+          fontSize: "0.85rem",
+          color: "#aaa",
+          textAlign: "right",
+        }}>
+          Schritt {step + 1} von {questions.length + 1}
+        </div>
+      </div>
+
+      <div style={{
+        background: "rgba(255, 255, 255, 0.04)",
+        border: "1px solid rgba(255, 255, 255, 0.06)",
+        borderRadius: "16px",
         padding: "2rem",
-        fontFamily: "'Segoe UI', sans-serif",
-      }}
-    >
-      <div
-        style={{
-          background: "rgba(255, 255, 255, 0.04)",
-          border: "1px solid rgba(255, 255, 255, 0.06)",
-          borderRadius: "16px",
-          padding: "2rem",
-          maxWidth: "600px",
-          width: "100%",
-          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(6px)",
-        }}
-      >
+        maxWidth: "600px",
+        width: "100%",
+        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
+        backdropFilter: "blur(6px)",
+      }}>
         {isAvatarStep ? (
           <>
-            <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
-              Lade ein Bild hoch für dein Ego
-            </h2>
+            <h2>Wähle ein Bild für dein Ego</h2>
             <AvatarUpload onAvatarSelect={setAvatar} />
-
             {answers.isInfluencer === "yes" && (
               <>
                 <hr style={{ margin: "1.5rem 0" }} />
-                <h2 style={{ marginBottom: "1.5rem", fontSize: "1.5rem" }}>
-                  Lade dein Branding-Logo hoch (optional)
-                </h2>
-                <input type="file" name="brandingLogo" accept="image/*" onChange={(e) => {
+                <h3>Branding-Logo hochladen (optional)</h3>
+                <input type="file" accept="image/*" onChange={(e) => {
                   const file = e.target.files[0];
                   if (!file) return;
                   const reader = new FileReader();
@@ -159,69 +162,30 @@ export default function Onboarding() {
                   reader.readAsDataURL(file);
                 }} />
                 {brandingLogo && (
-                  <img
-                    src={brandingLogo}
-                    alt="Branding Logo"
-                    style={{ maxWidth: "100px", marginTop: "1rem", borderRadius: "8px" }}
-                  />
+                  <img src={brandingLogo} alt="Logo" style={{ maxWidth: "100px", marginTop: "1rem" }} />
                 )}
-                <h2 style={{ marginTop: "1.5rem", marginBottom: "1.5rem", fontSize: "1.5rem" }}>
-                  Wähle deine Branding-Farbe
-                </h2>
-                <input
-                  type="color"
-                  name="brandingColor"
-                  value={answers.brandingColor || "#00ff88"}
-                  onChange={handleChange}
-                  style={{ width: "100%", height: "40px", border: "none", cursor: "pointer" }}
-                />
               </>
             )}
           </>
         ) : (
           <>
-            <h2 style={{ marginBottom: "1rem", fontSize: "1.4rem" }}>{currentQuestion.label}</h2>
-
+            <h2>{currentQuestion.label}</h2>
             {currentQuestion.type === "select" ? (
               <select
                 name={currentQuestion.key}
                 value={answers[currentQuestion.key] || ""}
                 onChange={handleChange}
                 style={{
-                  width: "100%",
-                  padding: "14px",
-                  fontSize: "1rem",
-                  borderRadius: "8px",
-                  background: "#222",
-                  border: "1px solid #333",
-                  color: "#eee",
-                  marginBottom: "0.8rem",
-                  outline: "none",
+                  width: "100%", padding: "14px", fontSize: "1rem",
+                  borderRadius: "8px", background: "#222", border: "1px solid #333",
+                  color: "#eee", marginBottom: "0.8rem"
                 }}
               >
                 <option value="">Bitte wählen</option>
-                {currentQuestion.options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
+                {currentQuestion.options.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-            ) : currentQuestion.type === "checkbox" ? (
-              <input
-                type="checkbox"
-                name={currentQuestion.key}
-                checked={answers[currentQuestion.key] || false}
-                onChange={handleChange}
-                style={{ transform: "scale(1.3)", marginTop: "0.5rem" }}
-              />
-            ) : currentQuestion.type === "color" ? (
-              <input
-                type="color"
-                name={currentQuestion.key}
-                value={answers[currentQuestion.key] || "#00ff88"}
-                onChange={handleChange}
-                style={{ width: "100%", height: "40px", border: "none", cursor: "pointer" }}
-              />
             ) : (
               <input
                 type="text"
@@ -229,25 +193,15 @@ export default function Onboarding() {
                 value={answers[currentQuestion.key] || ""}
                 onChange={handleChange}
                 onKeyDown={(e) => e.key === "Enter" && next()}
-                autoFocus
                 style={{
-                  width: "100%",
-                  padding: "14px",
-                  fontSize: "1rem",
-                  background: "#222",
-                  border: "1px solid #333",
-                  color: "#eee",
-                  borderRadius: "8px",
-                  marginBottom: "0.8rem",
-                  outline: "none",
+                  width: "100%", padding: "14px", fontSize: "1rem",
+                  background: "#222", border: "1px solid #333",
+                  color: "#eee", borderRadius: "8px", marginBottom: "0.8rem"
                 }}
               />
             )}
-
             {currentQuestion.tip && (
-              <p style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "1.5rem" }}>
-                {currentQuestion.tip}
-              </p>
+              <p style={{ fontSize: "0.9rem", color: "#aaa" }}>{currentQuestion.tip}</p>
             )}
           </>
         )}
@@ -255,20 +209,11 @@ export default function Onboarding() {
         <button
           onClick={next}
           style={{
-            width: "100%",
-            padding: "14px",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            borderRadius: "8px",
-            border: "none",
+            width: "100%", padding: "14px", fontSize: "1rem", fontWeight: "bold",
+            borderRadius: "8px", border: "none",
             background: "linear-gradient(to right, #00ffcc, #00ff88)",
-            color: "#111",
-            cursor: "pointer",
-            boxShadow: "0 0 16px rgba(0, 255, 170, 0.3)",
-            transition: "transform 0.2s ease-in-out",
+            color: "#111", cursor: "pointer", marginTop: "1rem"
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           {isAvatarStep ? "Fertig" : "Weiter"}
         </button>
