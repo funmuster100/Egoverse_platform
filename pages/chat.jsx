@@ -178,10 +178,10 @@ export default function Chat() {
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={toggleTheme}>🌓</button>
-            <button onClick={() => setShowSettings(true)}>⚙️</button>
-          </div>
+         <div className={styles["chat-header-right"]}>
+  <button onClick={toggleTheme} title="Theme wechseln">🌓</button>
+  <button onClick={() => setShowSettings(true)} title="Einstellungen">⚙️</button>
+</div>
         </div>
 
         {/* Mode */}
