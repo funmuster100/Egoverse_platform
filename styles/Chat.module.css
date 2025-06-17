@@ -144,12 +144,14 @@
 
 /* Nachrichtenbereich */
 .chat-messages {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 8px;
+  padding: 8px 4px;
+  max-height: calc(100dvh - 250px); /* Dynamisch, je nach anderen Komponenten */
 }
 
 .bubble-container {
