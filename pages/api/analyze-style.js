@@ -3,34 +3,48 @@ import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
-  const { messages } = req.body;
-
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: "Keine gültigen Nachrichten übergeben." });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Nur POST erlaubt." });
   }
 
-  const prompt = `
-Analysiere den Schreibstil dieser Person auf Basis der folgenden Chatverläufe. Gib eine Liste mit 5 bis 8 prägnanten Merkmalen zurück. Beispiele: "ironisch", "emotional", "kurze Sätze", "direkt", "regionaler Slang", "viele Emojis", "jugendsprachlich", "freundlich-provokant" etc. Nur die Liste, keine Einleitung.
+  const { chatHistory } = req.body;
 
-Verlauf:
-${messages.map((m) => `${m.role === "user" ? "User" : "Bot"}: ${m.content}`).join("\n")}
-`;
+  if (!chatHistory || !Array.isArray(chatHistory)) {
+    return res.status(400).json({ error: "Kein Chatverlauf übergeben." });
+  }
 
   try {
+    const systemPrompt = `
+Du bist ein Sprachstil-Analyst. Deine Aufgabe ist es, den persönlichen Kommunikationsstil einer Person anhand eines kurzen Chatverlaufs zu analysieren.
+
+📌 Ziel: Gib eine kurze Liste von 3–5 prägnanten Stil-Eigenschaften aus (z. B. „kurz“, „ironisch“, „freundlich-direkt“, „emotional“, „verspielt“, „analytisch“ etc.).
+
+Nur die Stichworte – kein Fließtext, keine Erklärungen.
+`;
+
+    const messages = [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `Hier ist der Chatverlauf:\n\n${chatHistory.map(msg => `${msg.role === "user" ? "User" : "Bot"}: ${msg.content}`).join("\n")}\n\nWas ist der Stil?`,
+      },
+    ];
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
-      messages: [
-        { role: "system", content: "Du bist ein präziser Stil-Analyst." },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.4,
+      messages,
+      temperature: 0.7,
     });
 
-    const analysis = completion.choices?.[0]?.message?.content?.trim().split("\n").map((s) => s.replace(/^[-•*]\s*/, "").trim()) || [];
+    const content = completion.choices[0]?.message?.content || "";
+    const styleProfile = content
+      .split(/[,–-]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
-    res.status(200).json({ styleProfile: analysis });
-  } catch (error) {
-    console.error("Analyse-Fehler:", error);
+    return res.status(200).json({ styleProfile });
+  } catch (err) {
+    console.error("Style Analysis Error:", err);
     res.status(500).json({ error: "Fehler bei der Stil-Analyse." });
   }
 }
