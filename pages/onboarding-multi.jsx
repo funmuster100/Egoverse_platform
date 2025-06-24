@@ -170,7 +170,7 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
     router.push("/summary");
   }}
 /> 
-/>
+
         ) : isAvatarStep ? (
           <>
             <h2>Wähle ein Bild für dein Ego</h2>
