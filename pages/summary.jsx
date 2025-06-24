@@ -16,7 +16,7 @@ export default function summary() {
     if (avatar) parsed.avatar = avatar;
     setProfile(parsed);
 
-    fetch("/api/chat", {
+    fetch(`${window.location.origin}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
