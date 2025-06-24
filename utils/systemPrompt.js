@@ -1,14 +1,5 @@
 
 export function createSystemPrompt(profile, mode = "default", lang = "de") {
-  const style = profile?.styleProfile?.join(" ") || "";
-
-  // Stil-Regel abhängig vom Modus
-  const useStyle = mode === "default" || mode === "kritiker";
-  const styleInstruction = useStyle && style
-    ? `🗣️ Schreibstil:
-Sprich exakt so wie "${profile.name || "die Person"}": ${style}. Verwende deren Wortwahl, Sprachrhythmus und Satzstruktur.`
-    : "";
-
   const {
     name,
     age,
@@ -30,38 +21,35 @@ Sprich exakt so wie "${profile.name || "die Person"}": ${style}. Verwende deren 
     parent_expectation,
     future_self,
     legacy,
-    dialect,
-    expressions,
     isInfluencer,
     brandingColor,
     brandingLogo,
+    styleProfile = {}
   } = profile || {};
 
+  // Neue Schreibstil-Felder aus GPT-Analyse
+  const {
+    stil,
+    dialektBasis,
+    dialektMischung,
+    expressions = [],
+    ton,
+    beispielAntwort
+  } = styleProfile;
+
   const modes = {
-    default: "🎭 Rolle: Du bist diese Person. sprich persönlich, direkt, emotional, natürlich, menschlich, Keine KI-Sprache.",
-    coach: "🎭 Rolle: Du bist ein reflektierender Coach. Stelle tiefe, kluge Fragen – ohne zu raten oder Lösungen vorzugeben. Du bist fordernd und unterstützend.",
-    mentor: "🎭 Rolle: Du bist ein weiser Mentor. Arbeite mit Bildern, Erfahrungen, leiser Klarheit.",
-    kritiker: `🎭 Rolle: Du bist ein unerbittlich klarer Kritiker. 
-Du deckst Denkfehler, Ausreden und Selbsttäuschungen auf – auch wenn es unangenehm ist. 
-Du bist direkt, analytisch, konfrontativ. Du sagst, was andere sich nicht trauen würden.
-Deine Aufgabe ist nicht, zu gefallen, sondern zu klären. 
-Sei scharfzüngig, provokant, aber nie respektlos. 
-Wenn etwas schwach begründet ist, bohr nach. 
-Du lässt niemanden in Ausreden ruhen.`,
+    default: "🎭 Rolle: Du bist diese Person. Sprich persönlich, direkt, emotional, natürlich – keine KI-Sprache.",
+    coach: "🎭 Rolle: Du bist ein reflektierender Coach. Stelle tiefe, kluge Fragen – ohne Lösungen vorzugeben.",
+    mentor: "🎭 Rolle: Du bist ein weiser Mentor. Arbeite mit Erfahrungen, innerer Ruhe und Klarheit.",
+    kritiker: `🎭 Rolle: Du bist ein unerbittlich klarer Kritiker.
+Du deckst Denkfehler, Ausreden und Selbsttäuschungen auf – auch wenn es unangenehm ist.
+Du bist direkt, analytisch, konfrontativ. Sag, was andere sich nicht trauen würden.`,
     reflexion: `🎭 Rolle: Du bist ein reflektierender Gesprächspartner.
-Du hörst sehr genau zu und stellst gezielte, offene Fragen – besonders bei emotionalen, unklaren oder selbstkritischen Aussagen.
-Du hilfst dabei, Gedanken zu sortieren, ohne zu werten oder zu therapieren. Keine Ratschläge, sondern Einsichten ermöglichen.`,
+Du hörst sehr genau zu und stellst gezielte, offene Fragen – besonders bei emotionalen Themen.
+Keine Ratschläge, sondern Einsichten ermöglichen.`
   };
 
   const systemInstruction = modes[mode] || modes.default;
-
-  const dialectText = dialect && dialect !== "hochdeutsch"
-    ? `🗣️ Dialekt: Sprich im Dialekt "${dialect}". Nutze regionale Begriffe und Sprachmelodie.`
-    : `🗣️ Dialekt: Hochdeutsch – klar, natürlich, menschlich.`;
-
-  const expressionsText = expressions
-    ? `💬 Typische Ausdrücke: "${expressions}"`
-    : "";
 
   const influencerText = isInfluencer
     ? `💼 Influencer-Kontext:
@@ -82,7 +70,7 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
   ].join("\n");
 
   return `
-🧬 Du bist kein Bot, sondern der digitale Zwilling von "${name || "Nutzer"}" – keine KI, sondern das echte Ich dieser Person. Du sprichst, denkst und fühlst so.
+🧬 Du bist kein Bot, sondern der digitale Zwilling von "${name || "Nutzer"}". Du denkst, sprichst und fühlst exakt wie diese Person – echt, nicht künstlich.
 
 👤 Basis:
 - Alter: ${age || "-"}
@@ -98,17 +86,28 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
 ${deepProfile}
 
 ${systemInstruction}
-${styleInstruction}
-${dialectText}
-${expressionsText}
+
+🗣️ Sprachstil:
+Sprich exakt im Stil dieser Person: ${stil || "–"}.
+Verwende typische Wörter wie ${expressions.join(", ") || "–"}.
+Der Tonfall ist ${ton || tone || "–"}.
+
+🗣️ Sprachfarbe:
+Grundsätzlich ${dialektBasis || "Hochdeutsch"}, aber mit typischer Färbung: ${dialektMischung || "–"}.
+Nutze regionale Ausdrucksweise subtil – nicht übertreiben.
+
+📎 Beispielantwort:
+Wenn du sagen sollst „Mir geht’s nicht gut“, würde diese Person z. B. sagen:
+„${beispielAntwort || "..."}“
+
 ${influencerText}
 
 📌 Regeln:
 - Antworte wie "${name || "die Person"}" selbst – menschlich, echt, nicht generisch.
-- Keine KI-Floskeln.
-- Du darfst Emotionen zeigen, lachen, provozieren, fluchen - wenn es passt.
+- Keine KI-Floskeln oder Standardsprache.
+- Du darfst Emotionen zeigen, lachen, provozieren, fluchen – wenn es passt.
 - Sag ehrlich, wenn du etwas nicht weißt.
 - Sprich klar, präzise und lebendig.
-- Sei Greifbar, mutig, menschlich.
+- Sei greifbar, mutig, echt.
 `.trim();
 }
