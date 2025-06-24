@@ -147,23 +147,37 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
       }}>
         {isStyleTestStep ? (
           <StyleTest
-  onComplete={({ styleProfile, thinkingStyle, typicalPhrases, dialektBasis, dialektMischung, beispielAntwort, expressions }) => {
-    const fullProfile = {
-      ...answers,
-      styleProfile,
-      thinkingStyle,
-      typicalPhrases,
-      dialektBasis,
-      dialektMischung,
-      beispielAntwort,
-      expressions: expressions || answers.expressions,
-      avatar,
-      brandingLogo,
-      brandingColor,
-    };
-    localStorage.setItem("ego_profile", JSON.stringify(fullProfile));
-    router.push("/summary");
-  }}
+ onComplete={({
+  styleProfile: _styleProfile,
+  thinkingStyle,
+  typicalPhrases,
+  dialektBasis,
+  dialektMischung,
+  beispielAntwort,
+  expressions,
+}) => {
+  const styleProfile = {
+    stil: _styleProfile?.[0] || "",
+    ton: _styleProfile?.[1] || "",
+    dialektBasis,
+    dialektMischung,
+    expressions: expressions ? expressions.split(",").map(e => e.trim()) : [],
+    beispielAntwort,
+    thinkingStyle,
+    typicalPhrases,
+  };
+
+  const fullProfile = {
+    ...answers,
+    styleProfile,
+    avatar,
+    brandingLogo,
+    brandingColor,
+  };
+
+  localStorage.setItem("ego_profile", JSON.stringify(fullProfile));
+  router.push("/summary");
+}}
 />
         ) : isAvatarStep ? (
           <>
