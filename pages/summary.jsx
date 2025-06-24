@@ -74,10 +74,16 @@ export default function Summary() {
           <Info label="Tonfall" value={profile.tone} />
           <Info label="Hobbys" value={profile.hobbies} />
           <Info label="Beziehungen" value={profile.relationships} />
+          <Info label="Dialekt" value={profile.dialect} />
+          <Info label="Denkweise" value={profile.thinkingStyle} />
+          <Info label="Typische Ausdrücke" value={profile.expressions} />
+          <Info label="Typische Phrasen" value={(profile.typicalPhrases || []).join(", ")} />
         </ul>
 
         <h3 style={styles.sectionTitle}>🗣️ So klingt dein Ego-Zwilling</h3>
-        <div style={styles.exampleBox}>{exampleReply}</div>
+        <div style={styles.exampleBox}>
+          {profile.beispielAntwort || exampleReply}
+        </div>
 
         <button style={styles.button} onClick={() => router.push("/chat")}>
           Starte dein Gespräch
@@ -114,7 +120,7 @@ const styles = {
     borderRadius: 16,
     padding: 32,
     width: "100%",
-    maxWidth: 560,
+    maxWidth: 600,
     backdropFilter: "blur(8px)",
     boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
   },
