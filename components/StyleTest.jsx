@@ -15,39 +15,69 @@ export default function StyleTest({ onComplete }) {
   const [step, setStep] = useState(0);
   const [messages, setMessages] = useState([{ from: "bot", text: QUESTIONS[0] }]);
   const [input, setInput] = useState("");
-  const [styleProfile, setStyleProfile] = useState([]);
+  const [allAnswers, setAllAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const sendAnswer = () => {
     if (!input.trim()) return;
 
-    const updated = [...messages, { from: "user", text: input }];
-    setMessages(updated);
-    setStyleProfile(prev => [...prev, input]);
+    const newMessages = [...messages, { from: "user", text: input }];
+    setMessages(newMessages);
+    setAllAnswers((prev) => [...prev, input]);
     setInput("");
 
     if (step < QUESTIONS.length - 1) {
       setTimeout(() => {
-        setMessages([...updated, { from: "bot", text: QUESTIONS[step + 1] }]);
+        setMessages([...newMessages, { from: "bot", text: QUESTIONS[step + 1] }]);
         setStep(step + 1);
-      }, 600);
+      }, 500);
     } else {
-      // Auswertung mit GPT starten
-      setLoading(true);
-      fetch("/api/analyze-style", {
+      analyzeStyle([...allAnswers, input]);
+    }
+  };
+
+  const analyzeStyle = async (answers) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/analyze-style", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: styleProfile.concat(input) }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          const extractedStyle = data?.styleProfile || [];
-          onComplete(extractedStyle);
-        })
-        .catch(err => {
-          console.error("Stilanalyse fehlgeschlagen:", err);
-          onComplete([]); // Fallback
-        });
+        body: JSON.stringify({ messages: answers }),
+      });
+
+      const data = await res.json();
+
+      const {
+        stil,
+        ton,
+        dialektBasis,
+        dialektMischung,
+        expressions,
+        beispielAntwort,
+        thinkingStyle,
+        typicalPhrases,
+      } = data;
+
+      const styleProfile = [stil, ton, dialektMischung].filter(Boolean);
+
+      const result = {
+        styleProfile,
+        tone: ton,
+        dialect: dialektBasis,
+        expressions: expressions?.join(", "),
+        beispielAntwort,
+        thinkingStyle,
+        typicalPhrases,
+      };
+
+      onComplete(result);
+    } catch (err) {
+      console.error("Analysefehler:", err);
+      setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
+      onComplete({});
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,18 +94,20 @@ export default function StyleTest({ onComplete }) {
     }}>
       <h2 style={{ marginBottom: "1rem" }}>🗣 Schreibstil-Test</h2>
 
-      <div style={{
-        maxHeight: "300px",
-        overflowY: "auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-        padding: "1rem",
-        background: "#111",
-        borderRadius: "12px",
-        fontSize: "1rem",
-        lineHeight: "1.5",
-      }}>
+      <div
+        style={{
+          maxHeight: "300px",
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          padding: "1rem",
+          background: "#111",
+          borderRadius: "12px",
+          fontSize: "1rem",
+          lineHeight: "1.5",
+        }}
+      >
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -132,6 +164,8 @@ export default function StyleTest({ onComplete }) {
           </button>
         </div>
       )}
+
+      {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
     </div>
   );
 }
