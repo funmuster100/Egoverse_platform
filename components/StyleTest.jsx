@@ -43,7 +43,7 @@ export default function StyleTest({ onComplete }) {
       const res = await fetch("/api/analyze-style", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: answers }),
+        body: JSON.stringify({ chatText: answers.join("\n") }),
       });
 
       const data = await res.json();
