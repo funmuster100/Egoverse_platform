@@ -13,11 +13,8 @@ const questions = [
   { key: "name", label: "Wie heißt du?", tip: "Du kannst auch einen Spitznamen angeben." },
   { key: "age", label: "Wie alt bist du?", tip: "Dein Alter hilft deinem Ego, dich besser zu spiegeln." },
   { key: "job", label: "Was machst du beruflich?", tip: "Stell dir vor, du erklärst es einem Kind." },
-  { key: "style", label: "Wie würdest du deinen Kommunikationsstil beschreiben?", tip: "Kurz, direkt oder blumig und verspielt?" },
-  { key: "phrase", label: "Gibt es einen Satz, den du oft sagst?", tip: "Vielleicht ein typischer Spruch von dir?" },
   { key: "values", label: "Was sind dir im Leben besonders wichtig?", tip: "Werte wie Ehrlichkeit, Freiheit oder Familie?" },
-  { key: "humor", label: "Wie ist dein Humor?", tip: "Ironisch, albern, schwarz oder ganz trocken?" },
-  { key: "tone", label: "Wie ist dein Tonfall in Gesprächen?", tip: "Eher ruhig, energisch oder freundlich-direkt?" },
+
   { key: "hobbies", label: "Was machst du gerne in deiner Freizeit?", tip: "Denk an Dinge, die dich wirklich erfüllen." },
   { key: "relationships", label: "Wie sieht dein Beziehungsleben aus?", tip: "Offen, ehrlich – so viel du magst." },
   { key: "identity", label: "Wie würdest du dich selbst in drei Worten beschreiben?", tip: "Intuitiv antworten – was kommt dir zuerst?" },
@@ -38,7 +35,6 @@ const questions = [
     type: "select",
     options: DIALECT_OPTIONS.map((d) => ({ value: d, label: d })),
   },
-  { key: "expressions", label: "Typische Wörter oder Sprüche", tip: "Z.B. 'weißt was ich mein?', 'passt scho'." },
   {
     key: "isInfluencer",
     label: "Bist du Influencer oder möchtest du dein Ego öffentlich nutzen?",
