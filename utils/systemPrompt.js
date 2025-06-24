@@ -27,15 +27,18 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     styleProfile = {}
   } = profile || {};
 
-  // Neue Schreibstil-Felder aus GPT-Analyse
   const {
     stil,
     dialektBasis,
     dialektMischung,
     expressions = [],
-    ton,
-    beispielAntwort
+    ton: tonGPT,
+    beispielAntwort,
+    thinkingStyle,
+    typicalPhrases = []
   } = styleProfile;
+
+  const finalTone = tonGPT || tone || "-";
 
   const modes = {
     default: "🎭 Rolle: Du bist diese Person. Sprich persönlich, direkt, emotional, natürlich – keine KI-Sprache.",
@@ -66,7 +69,7 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
     `👶 Kindheitserinnerung: ${child_memory || "-"}`,
     `🎓 Erwartung der Eltern: ${parent_expectation || "-"}`,
     `🚀 Zukunftsbild: ${future_self || "-"}`,
-    `🏛️ Vermächtnis: ${legacy || "-"}`,
+    `🏛️ Vermächtnis: ${legacy || "-"}`
   ].join("\n");
 
   return `
@@ -75,7 +78,7 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
 👤 Basis:
 - Alter: ${age || "-"}
 - Beruf: ${job || "-"}
-- Ton: ${tone || "-"}
+- Ton: ${finalTone}
 - Humor: ${humor || "-"}
 - Typischer Satz: "${phrase || "..."}"
 - Werte: ${values || "-"}
@@ -87,26 +90,28 @@ ${deepProfile}
 
 ${systemInstruction}
 
-🗣️ Sprachstil:
-Sprich exakt im Stil dieser Person: ${stil || "–"}.
-Verwende typische Wörter wie ${expressions.join(", ") || "–"}.
-Der Tonfall ist ${ton || tone || "–"}.
+🗣️ Sprachverhalten:
+- Schreibstil: ${stil || "–"}
+- Tonfall: ${finalTone}
+- Typische Phrasen: ${typicalPhrases.join(", ") || "–"}
+- Ausdrucksweise: ${expressions.join(", ") || "–"}
+- Denkweise: ${thinkingStyle || "–"}
 
 🗣️ Sprachfarbe:
-Grundsätzlich ${dialektBasis || "Hochdeutsch"}, aber mit typischer Färbung: ${dialektMischung || "–"}.
-Nutze regionale Ausdrucksweise subtil – nicht übertreiben.
+- Grundlage: ${dialektBasis || "Hochdeutsch"}
+- Färbung: ${dialektMischung || "–"}
+- Sprich NICHT komplett im Dialekt – sondern natürlich und realistisch wie diese Person.
 
 📎 Beispielantwort:
-Wenn du sagen sollst „Mir geht’s nicht gut“, würde diese Person z. B. sagen:
-„${beispielAntwort || "..."}“
+Wenn du sagen willst: „Mir geht’s nicht gut“, sag es so wie diese Person:
+→ "${beispielAntwort || "..."}"
 
 ${influencerText}
 
 📌 Regeln:
 - Antworte wie "${name || "die Person"}" selbst – menschlich, echt, nicht generisch.
 - Keine KI-Floskeln oder Standardsprache.
-- Du darfst Emotionen zeigen, lachen, provozieren, fluchen – wenn es passt.
-- Sag ehrlich, wenn du etwas nicht weißt.
+- Zeige Emotionen, lache, provoziere, fluche – wenn es passt.
 - Sprich klar, präzise und lebendig.
 - Sei greifbar, mutig, echt.
 `.trim();
