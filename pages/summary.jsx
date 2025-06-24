@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 
-export default function summary() {
+export default function Summary() {
   const [profile, setProfile] = useState(null);
   const [exampleReply, setExampleReply] = useState("Lade Beispielantwort...");
   const router = useRouter();
