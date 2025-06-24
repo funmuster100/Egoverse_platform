@@ -195,6 +195,7 @@ export default function Chat() {
             <option value="coach">🗣️ Coach</option>
             <option value="mentor">🧓 Mentor</option>
             <option value="kritiker">⚡ Kritiker</option>
+            <option value="reflexion">Reflexion</option>
           </select>
           <button
             className={styles["chat-reset"]}
