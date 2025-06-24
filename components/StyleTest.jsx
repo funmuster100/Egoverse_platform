@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const QUESTIONS = [
   "Hey! 😊 Stell dir vor, ich bin dein Ego – wie würdest du mich begrüßen?",
@@ -16,34 +16,44 @@ export default function StyleTest({ onComplete }) {
   const [messages, setMessages] = useState([{ from: "bot", text: QUESTIONS[0] }]);
   const [input, setInput] = useState("");
   const [styleProfile, setStyleProfile] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const sendAnswer = () => {
     if (!input.trim()) return;
 
-    const updated = [
-      ...messages,
-      { from: "user", text: input },
-    ];
-
+    const updated = [...messages, { from: "user", text: input }];
     setMessages(updated);
-    setStyleProfile((prev) => [...prev, input]);
+    setStyleProfile(prev => [...prev, input]);
     setInput("");
 
     if (step < QUESTIONS.length - 1) {
       setTimeout(() => {
         setMessages([...updated, { from: "bot", text: QUESTIONS[step + 1] }]);
         setStep(step + 1);
-      }, 700);
+      }, 600);
     } else {
-      setTimeout(() => {
-        onComplete(styleProfile.concat(input));
-      }, 500);
+      // Auswertung mit GPT starten
+      setLoading(true);
+      fetch("/api/analyze-style", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: styleProfile.concat(input) }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          const extractedStyle = data?.styleProfile || [];
+          onComplete(extractedStyle);
+        })
+        .catch(err => {
+          console.error("Stilanalyse fehlgeschlagen:", err);
+          onComplete([]); // Fallback
+        });
     }
   };
 
   return (
     <div style={{
-      background: "rgba(255, 255, 255, 0.05)",
+      background: "rgba(255,255,255,0.05)",
       padding: "2rem",
       borderRadius: "16px",
       maxWidth: "600px",
@@ -81,40 +91,47 @@ export default function StyleTest({ onComplete }) {
             {msg.text}
           </div>
         ))}
+        {loading && (
+          <div style={{ alignSelf: "center", marginTop: "1rem", color: "#0f0" }}>
+            ✨ Stil wird analysiert...
+          </div>
+        )}
       </div>
 
-      <div style={{ marginTop: "1rem", display: "flex", gap: "8px" }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendAnswer()}
-          placeholder="Deine Antwort..."
-          style={{
-            flex: 1,
-            padding: "12px",
-            fontSize: "1rem",
-            borderRadius: "10px",
-            border: "1px solid #333",
-            background: "#222",
-            color: "#eee",
-          }}
-        />
-        <button
-          onClick={sendAnswer}
-          style={{
-            background: "#10b981",
-            color: "#fff",
-            border: "none",
-            padding: "0 18px",
-            borderRadius: "10px",
-            fontWeight: "bold",
-            fontSize: "1rem",
-            cursor: "pointer",
-          }}
-        >
-          Senden
-        </button>
-      </div>
+      {!loading && (
+        <div style={{ marginTop: "1rem", display: "flex", gap: "8px" }}>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendAnswer()}
+            placeholder="Deine Antwort..."
+            style={{
+              flex: 1,
+              padding: "12px",
+              fontSize: "1rem",
+              borderRadius: "10px",
+              border: "1px solid #333",
+              background: "#222",
+              color: "#eee",
+            }}
+          />
+          <button
+            onClick={sendAnswer}
+            style={{
+              background: "#10b981",
+              color: "#fff",
+              border: "none",
+              padding: "0 18px",
+              borderRadius: "10px",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              cursor: "pointer",
+            }}
+          >
+            Senden
+          </button>
+        </div>
+      )}
     </div>
   );
 }
