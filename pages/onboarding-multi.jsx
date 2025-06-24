@@ -151,10 +151,16 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
       }}>
         {isStyleTestStep ? (
           <StyleTest
-  onComplete={(styleProfile) => {
+  onComplete={({ styleProfile, thinkingStyle, typicalPhrases, dialektBasis, dialektMischung, beispielAntwort, expressions }) => {
     const fullProfile = {
       ...answers,
       styleProfile,
+      thinkingStyle,
+      typicalPhrases,
+      dialektBasis,
+      dialektMischung,
+      beispielAntwort,
+      expressions: expressions || answers.expressions,
       avatar,
       brandingLogo,
       brandingColor,
