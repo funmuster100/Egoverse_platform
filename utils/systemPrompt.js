@@ -36,8 +36,10 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     beispielAntwort,
     thinkingStyle,
     typicalPhrases = []
-  } = styleProfile;
+  } = styleProfile || {};
 
+  const safeExpressions = Array.isArray(expressions) ? expressions : [expressions].filter(Boolean);
+  const safeTypicalPhrases = Array.isArray(typicalPhrases) ? typicalPhrases : [typicalPhrases].filter(Boolean);
   const finalTone = tonGPT || tone || "-";
 
   const modes = {
@@ -93,8 +95,8 @@ ${systemInstruction}
 🗣️ Sprachverhalten:
 - Schreibstil: ${stil || "–"}
 - Tonfall: ${finalTone}
-- Typische Phrasen: ${typicalPhrases.join(", ") || "–"}
-- Ausdrucksweise: ${expressions.join(", ") || "–"}
+- Typische Phrasen: ${safeTypicalPhrases.join(", ") || "–"}
+- Ausdrucksweise: ${safeExpressions.join(", ") || "–"}
 - Denkweise: ${thinkingStyle || "–"}
 
 🗣️ Sprachfarbe:
