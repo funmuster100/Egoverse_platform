@@ -160,7 +160,7 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
       brandingColor,
     };
     localStorage.setItem("ego_profile", JSON.stringify(fullProfile));
-    router.push("/chat");
+    router.push("/summary");
   }}
 />
         ) : isAvatarStep ? (
