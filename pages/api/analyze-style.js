@@ -3,55 +3,48 @@ import OpenAI from "openai";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
-  const { text } = req.body;
+  const { chatText } = req.body;
 
-  if (!text) {
+  if (!chatText) {
     return res.status(400).json({ error: "Kein Text übergeben." });
   }
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4", // Falls du nur gpt-3.5 nutzt, kannst du hier zurückschalten
+      model: "gpt-4",
       messages: [
         {
           role: "system",
-          content: `
-Analysiere den folgenden Text und beantworte:
+          content: `Analysiere den folgenden Chatverlauf und gib eine strukturierte JSON-Antwort mit diesen Feldern zurück:
 
-1. Wie ist der Schreibstil? (z. B. direkt, verspielt, ironisch)
-2. Welche typischen Wörter oder Redewendungen verwendet die Person?
-3. Welcher Dialekt ist erkennbar? Ist es Hochdeutsch mit Färbung? Wenn ja, welche?
-4. Wie wirkt der Tonfall? (z. B. locker, ruhig, provokativ)
-5. Erstelle ein kurzes Beispiel, wie diese Person auf „Mir geht's heute nicht gut“ reagieren würde.
-
-Antworte im folgenden JSON-Format:
 {
-  "stil": "...",
-  "dialektBasis": "...",
-  "dialektMischung": "...",
-  "expressions": ["...", "..."],
-  "ton": "...",
-  "beispielAntwort": "..."
+  stil: "...",                 // Schreibstil (locker, direkt, verspielt ...)
+  ton: "...",                  // Tonalität (freundlich, provokant ...)
+  dialektBasis: "...",         // z. B. "hochdeutsch", "schwäbisch", "bayrisch"
+  dialektMischung: "...",      // Mischung oder lokale Färbung, z. B. "leicht schwäbisch eingefärbt"
+  expressions: ["..."],        // typische Ausdrücke
+  beispielAntwort: "...",      // kurze Beispielantwort im Stil der Person
+  thinkingStyle: "...",        // Denkweise: rational, impulsiv, emotional …
+  typicalPhrases: ["..."]      // Typische Satzanfänge wie "Ganz ehrlich …"
 }
-`,
+
+Schreibe nur gültiges JSON zurück – ohne Kommentare oder Erklärungen.`,
         },
         {
           role: "user",
-          content: text,
+          content: chatText,
         },
       ],
     });
 
-    const reply = completion.choices?.[0]?.message?.content?.trim();
+    const raw = completion.choices?.[0]?.message?.content?.trim();
+    const jsonStart = raw.indexOf("{");
+    const jsonString = raw.slice(jsonStart);
+    const parsed = JSON.parse(jsonString);
 
-    try {
-      const json = JSON.parse(reply);
-      return res.status(200).json(json);
-    } catch {
-      return res.status(500).json({ error: "Antwort konnte nicht als JSON geparst werden.", raw: reply });
-    }
+    return res.status(200).json(parsed);
   } catch (err) {
-    console.error("Fehler bei GPT:", err);
-    res.status(500).json({ error: "Analyse fehlgeschlagen." });
+    console.error("Analysefehler:", err.message);
+    return res.status(500).json({ error: "Analyse fehlgeschlagen." });
   }
 }
