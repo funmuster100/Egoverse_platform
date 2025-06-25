@@ -82,8 +82,10 @@ useEffect(() => {
 
     const updated = [...messages, { role: "user", content: input }];
     setMessages(updated);
+    console.log("🧠 StyleProfile aktiv:", styleProfile);
     // Stimmung aus Nutzereingabe erkennen ↓↓↓
-const vocab = profile?.styleProfile?.contextualVocabulary || {};
+const styleProfile = profile?.styleProfile || JSON.parse(localStorage.getItem("ego_profile") || "{}")?.styleProfile || {};
+const vocab = styleProfile?.contextualVocabulary || {};
 let detectedMood = null;
 
 const normalize = (str) =>
