@@ -97,17 +97,16 @@ useEffect(() => {
       setIsTyping(false);
       return;
     }
-
 const { reply } = await res.json();
-const replyText = reply?.text || "";
+const replyText = reply;
 
 // DEBUG
 console.log("Antwort vom Bot:", replyText);
 console.log("StyleProfile:", profile?.styleProfile);
-console.log("Kontext-Vokabular:", profile?.styleProfile?.contextualVocabulary);
+console.log("Kontext-Vokabular:", profile?.contextualVocabulary);
 
 // Stimmung aus contextualVocabulary erkennen
-const vocab = profile?.styleProfile?.contextualVocabulary || {};
+const vocab = profile?.contextualVocabulary || {};
 let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
@@ -130,6 +129,7 @@ if (detectedMood) {
 setMessages([...updated, { role: "assistant", content: replyText }]);
 setIsTyping(false);
 inputRef.current?.focus();
+
 };
 
     const remember = (text) => {
