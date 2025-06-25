@@ -25,10 +25,16 @@ export default async function handler(req, res) {
   expressions: ["..."],        // typische Ausdrücke
   beispielAntwort: "...",      // kurze Beispielantwort im Stil der Person
   thinkingStyle: "...",        // Denkweise: rational, impulsiv, emotional …
-  typicalPhrases: ["..."]      // Typische Satzanfänge wie "Ganz ehrlich …"
+  typicalPhrases: ["..."],     // Typische Satzanfänge wie "Ganz ehrlich …"
+  contextualVocabulary: {      // Stimmungsbezogene typische Phrasen
+    wütend: ["..."],
+    traurig: ["..."],
+    nachdenklich: ["..."],
+    ironisch: ["..."]
+  }
 }
 
-Schreibe nur gültiges JSON zurück – ohne Kommentare oder Erklärungen.`,
+Lass nichts weg. Schreibe nur gültiges JSON zurück – ohne Kommentare oder Erklärungen.`,
         },
         {
           role: "user",
@@ -41,6 +47,8 @@ Schreibe nur gültiges JSON zurück – ohne Kommentare oder Erklärungen.`,
     const jsonStart = raw.indexOf("{");
     const jsonString = raw.slice(jsonStart);
     const parsed = JSON.parse(jsonString);
+
+    console.log("Analyse-Resultat:", parsed); // 🔍 DEBUG
 
     return res.status(200).json(parsed);
   } catch (err) {
