@@ -101,7 +101,7 @@ useEffect(() => {
     const { reply } = await res.json();
   
   // Stimmung aus contextualVocabulary erkennen
-  const vocab = profile?.contextualVocabulary || {};
+  const vocab = profile?.styleProfile?.contextualVocabulary || {};
   const detectedMood = Object.keys(vocab).find((moodKey) =>
     vocab[moodKey]?.some((phrase) => reply.includes(phrase))
   );
