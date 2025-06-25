@@ -263,6 +263,16 @@
   font-size: 0.9rem;
 }
 
+.mood-indicator {
+  text-align: center;
+  color: #10b981;
+  font-weight: bold;
+  padding: 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  margin: 0.5rem auto;
+  max-width: 300px;
+}
 /* Mobile */
 @media (max-width: 600px) {
   .chat-input {
