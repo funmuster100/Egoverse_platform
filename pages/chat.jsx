@@ -77,79 +77,79 @@ useEffect(() => {
     setDarkMode(next === "dark");
   };
 
-  const send = async () => {
-    if (!input.trim()) return;
+ const send = async () => {
+  if (!input.trim()) return;
 
-    const updated = [...messages, { role: "user", content: input }];
-    setMessages(updated);
-    console.log("🧠 StyleProfile aktiv:", styleProfile);
-    // Stimmung aus Nutzereingabe erkennen ↓↓↓
-const styleProfile = profile?.styleProfile || JSON.parse(localStorage.getItem("ego_profile") || "{}")?.styleProfile || {};
-const vocab = styleProfile?.contextualVocabulary || {};
-let detectedMood = null;
+  const updated = [...messages, { role: "user", content: input }];
+  setMessages(updated);
 
-const normalize = (str) =>
-  str.toLowerCase().replace(/[.,!?'"()\[\]{}:;–—\-]/g, "").trim();
+  // Profil + Kontextvokabular laden
+  const currentProfile = profile || JSON.parse(localStorage.getItem("ego_profile") || "{}");
+  const styleProfile = currentProfile?.styleProfile || {};
+  const vocab = styleProfile?.contextualVocabulary || {};
 
-for (const moodKey of Object.keys(vocab)) {
-  for (const phrase of vocab[moodKey]) {
-    if (
-      normalize(input).includes(normalize(phrase)) ||
-      normalize(phrase).includes(normalize(input))
-    ) {
-      detectedMood = moodKey;
-      break;
+  console.log("🧠 StyleProfile aktiv:", styleProfile);
+
+  // Stimmung anhand User-Eingabe erkennen
+  const normalize = (str) =>
+    str.toLowerCase().replace(/[.,!?'"()\[\]{}:;–—\-]/g, "").trim();
+
+  let detectedMood = null;
+  for (const moodKey of Object.keys(vocab)) {
+    for (const phrase of vocab[moodKey]) {
+      if (
+        normalize(input).includes(normalize(phrase)) ||
+        normalize(phrase).includes(normalize(input))
+      ) {
+        detectedMood = moodKey;
+        break;
+      }
     }
+    if (detectedMood) break;
   }
-  if (detectedMood) break;
-}
 
-if (detectedMood) {
-  console.log("🎯 Stimmung (User) erkannt:", detectedMood);
-  setMood(detectedMood);
-} else {
-  console.log("😕 Keine Stimmung erkannt (User)");
-}
-// ↑↑↑ ENDE
-    setInput("");
-    setIsTyping(true);
+  if (detectedMood) {
+    console.log("🎯 Stimmung (User) erkannt:", detectedMood);
+    setMood(detectedMood);
+  } else {
+    console.log("😕 Keine Stimmung erkannt (User)");
+  }
 
-    const safeProfile = { ...profile, styleProfile: profile?.styleProfile || {}, };
-    delete safeProfile.brandingLogo;
+  setInput("");
+  setIsTyping(true);
 
-    const recent = updated.slice(-10);
+  const safeProfile = { ...currentProfile, styleProfile };
+  delete safeProfile.brandingLogo;
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profile: safeProfile,
-        mode,
-        lang,
-        messages: recent,
-      }),
-    });
+  const recent = updated.slice(-10);
 
-    if (!res.ok) {
-      console.error("Chat API Error:", await res.text());
-      setIsTyping(false);
-      return;
-    }
-const { reply } = await res.json();
-const replyText = reply;
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      profile: safeProfile,
+      mode,
+      lang,
+      messages: recent,
+    }),
+  });
 
-// DEBUG
-console.log("Antwort vom Bot:", replyText);
-console.log("StyleProfile:", profile?.styleProfile);
+  if (!res.ok) {
+    console.error("Chat API Error:", await res.text());
+    setIsTyping(false);
+    return;
+  }
 
+  const { reply } = await res.json();
+  const replyText = reply;
 
+  console.log("Antwort vom Bot:", replyText);
+  console.log("StyleProfile:", styleProfile);
 
-setMessages([...updated, { role: "assistant", content: replyText }]);
-setIsTyping(false);
-inputRef.current?.focus();
-
+  setMessages([...updated, { role: "assistant", content: replyText }]);
+  setIsTyping(false);
+  inputRef.current?.focus();
 };
-
     const remember = (text) => {
     const egoProfile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
     if (!egoProfile.learningJournal) egoProfile.learningJournal = [];
