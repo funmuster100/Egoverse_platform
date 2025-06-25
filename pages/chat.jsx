@@ -98,6 +98,17 @@ export default function Chat() {
     inputRef.current?.focus();
   };
 
+    const remember = (text) => {
+    const egoProfile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
+    if (!egoProfile.learningJournal) egoProfile.learningJournal = [];
+    egoProfile.learningJournal.push({
+      text,
+      date: new Date().toISOString(),
+    });
+    localStorage.setItem("ego_profile", JSON.stringify(egoProfile));
+    alert("Gemerkter Eintrag gespeichert ✨");
+  };
+
   const BOT_AVATARS = {
     default: "/avatars/bot_default.jpeg",
     coach: "/avatars/bot_coach.jpeg",
@@ -226,8 +237,18 @@ export default function Chat() {
                 height={40}
                 className={styles["avatar"]}
               />
-              <div className={styles["bubble"]}>{m.content}</div>
+              <div className={styles["bubble"]}>{m.content}
+                {m.role === "assistant" && (
+                  <button
+                    onClick={() => remember(m.content)}
+                    className={styles["remember-button"]}
+                  >
+                    ⭐ merken
+                  </button>
+                )}
+              </div>
             </div>
+            
           ))}
           {isTyping && (
             <div className={styles["typing-bubble"]}>
