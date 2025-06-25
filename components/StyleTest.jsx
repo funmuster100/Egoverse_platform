@@ -85,7 +85,8 @@ export default function StyleTest({ onComplete }) {
         : typicalPhrases?.split(",").map((s) => s.trim()) || [],
     };
 
-    localStorage.setItem("ego_profile", JSON.stringify({ styleProfile }));
+    const cleanProfile = JSON.parse(JSON.stringify({ styleProfile }));
+localStorage.setItem("ego_profile", JSON.stringify(cleanProfile));
     onComplete({ styleProfile });
   } catch (err) {
     console.error("Analysefehler:", err);
