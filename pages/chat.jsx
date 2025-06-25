@@ -103,11 +103,11 @@ const replyText = reply;
 // DEBUG
 console.log("Antwort vom Bot:", replyText);
 console.log("StyleProfile:", profile?.styleProfile);
-console.log("Kontext-Vokabular:", profile?.contextualVocabulary);
+
 
 // Stimmung aus contextualVocabulary erkennen
 const vocab = profile?.styleProfile?.contextualVocabulary || {};
-   console.log("Kontext-Vokabular:", vocab); // ← Debug richtig platzieren 
+   
 let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
