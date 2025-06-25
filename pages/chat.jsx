@@ -107,6 +107,7 @@ console.log("Kontext-Vokabular:", profile?.contextualVocabulary);
 
 // Stimmung aus contextualVocabulary erkennen
 const vocab = profile?.styleProfile?.contextualVocabulary || {};
+   console.log("Vokabular:", vocab); // ← Debug richtig platzieren 
 let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
