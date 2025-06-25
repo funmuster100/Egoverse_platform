@@ -61,14 +61,27 @@ export default function StyleTest({ onComplete }) {
     } = data;
 
     const contextualVocabulary = {
-      nachdenklich: ["Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt."],
-      ironisch: ["Na super. Genau das hab ich gebraucht.", "Ironie off."],
-      traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
-      wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
-      euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
-      ...apiVocab // optional
-    };
-
+  nachdenklich: [
+    "Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt.",
+    ...(apiVocab?.nachdenklich || [])
+  ],
+  ironisch: [
+    "Na super. Genau das hab ich gebraucht.", "Ironie off.",
+    ...(apiVocab?.ironisch || [])
+  ],
+  traurig: [
+    "Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an.",
+    ...(apiVocab?.traurig || [])
+  ],
+  wütend: [
+    "Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?",
+    ...(apiVocab?.wütend || [])
+  ],
+  euphorisch: [
+    "Yesss!", "Mega!", "Geil, das fühl ich total!",
+    ...(apiVocab?.euphorisch || [])
+  ]
+};
     const styleProfile = {
       stil,
       ton,
