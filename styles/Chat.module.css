@@ -178,7 +178,16 @@
   background: #2563eb;
   color: white;
 }
-
+.remember-button {
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid #00ff88;
+  color: #00ff88;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
 /* Tippen-Animation */
 .typing-bubble {
   display: flex;
