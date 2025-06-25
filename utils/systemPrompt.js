@@ -35,22 +35,18 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     ton: tonGPT,
     beispielAntwort,
     thinkingStyle,
-    typicalPhrases = []
-    contextualVocabulary = []
-  } = styleProfile || {};
-  const contextPhrases = profile?.styleProfile?.contextualVocabulary || {};
+    typicalPhrases = [],
+    contextualVocabulary = {}  // <- als Objekt
+  } = styleProfile;
 
-  const contextFormatted = Object.entries(contextPhrases)
-    .map(([k, v]) => `- ${k}: ${v.join(", ")}`)
-    .join("\n");
-
-  if (contextFormatted) {
-    prompt += `\n\n🎭 Kontext-Phrasen:\nNutze diese Ausdrücke je nach Stimmung:\n${contextFormatted}`;
-  }
+  const finalTone = tonGPT || tone || "-";
 
   const safeExpressions = Array.isArray(expressions) ? expressions : [expressions].filter(Boolean);
   const safeTypicalPhrases = Array.isArray(typicalPhrases) ? typicalPhrases : [typicalPhrases].filter(Boolean);
-  const finalTone = tonGPT || tone || "-";
+
+  const contextFormatted = Object.entries(contextualVocabulary || {})
+    .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+    .join("\n");
 
   const modes = {
     default: "🎭 Rolle: Du bist diese Person. Sprich persönlich, direkt, emotional, natürlich – keine KI-Sprache.",
@@ -109,9 +105,9 @@ ${systemInstruction}
 - Ausdrucksweise: ${safeExpressions.join(", ") || "–"}
 - Denkweise: ${thinkingStyle || "–"}
 
-🧠 Kontextbezogene Ausdrücke:
-Nutze situativ auch typische Einleitungen, Denkpausen oder Unsicherheiten – etwa:
-→ ${contextualVocabulary.length > 0 ? contextualVocabulary.map(e => `"${e}"`).join(", ") : "–"}
+🎭 Kontext-Phrasen:
+Nutze diese Ausdrücke je nach Stimmung:
+${contextFormatted || "–"}
 
 🗣️ Sprachfarbe:
 - Grundlage: ${dialektBasis || "Hochdeutsch"}
