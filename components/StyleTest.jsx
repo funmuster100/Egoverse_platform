@@ -57,7 +57,7 @@ export default function StyleTest({ onComplete }) {
       beispielAntwort,
       thinkingStyle,
       typicalPhrases,
-      contextualVocabulary
+      contextualVocabulary: apiVocab
     } = data;
 
     const contextualVocabulary = {
@@ -66,6 +66,7 @@ export default function StyleTest({ onComplete }) {
   traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
   wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
   euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
+      ...apiVocab // überschreibt oder ergänzt
 };
 
 const styleProfile = {
