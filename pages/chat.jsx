@@ -111,7 +111,10 @@ let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
   for (const phrase of vocab[moodKey]) {
-    if (replyText.toLowerCase().includes(phrase.toLowerCase())) {
+   if (
+  replyText.toLowerCase().includes(phrase.toLowerCase()) ||
+  phrase.toLowerCase().includes(replyText.toLowerCase())
+)  {
       detectedMood = moodKey;
       break;
     }
