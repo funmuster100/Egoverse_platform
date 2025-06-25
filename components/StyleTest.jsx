@@ -37,7 +37,7 @@ export default function StyleTest({ onComplete }) {
     }
   };
 
-  const analyzeStyle = async (answers) => {
+const analyzeStyle = async (answers) => {
   setLoading(true);
   try {
     const res = await fetch("/api/analyze-style", {
@@ -60,28 +60,24 @@ export default function StyleTest({ onComplete }) {
       contextualVocabulary: apiVocab
     } = data;
 
-    const contextualVocabulary = {
-  nachdenklich: [
-    "Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt.",
-    ...(apiVocab?.nachdenklich || [])
-  ],
-  ironisch: [
-    "Na super. Genau das hab ich gebraucht.", "Ironie off.",
-    ...(apiVocab?.ironisch || [])
-  ],
-  traurig: [
-    "Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an.",
-    ...(apiVocab?.traurig || [])
-  ],
-  wütend: [
-    "Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?",
-    ...(apiVocab?.wütend || [])
-  ],
-  euphorisch: [
-    "Yesss!", "Mega!", "Geil, das fühl ich total!",
-    ...(apiVocab?.euphorisch || [])
-  ]
-};
+    // 🛠️ Fallback-Vokabular
+    const fallbackVocabulary = {
+      wütend: ["regt mich richtig auf", "was soll der scheiß"],
+      euphorisch: ["mega", "geil", "yesss"],
+      traurig: ["macht mich traurig", "fühlt sich schwer an"],
+      ironisch: ["na super", "ironisch gemeint"],
+      nachdenklich: ["hm", "ich frag mich", "weiß nicht genau"]
+    };
+
+    // 🔀 Mischen: API-Werte + Fallback
+    const contextualVocabulary = {};
+    for (const key of Object.keys(fallbackVocabulary)) {
+      contextualVocabulary[key] = [
+        ...fallbackVocabulary[key],
+        ...(apiVocab?.[key] || [])
+      ];
+    }
+
     const styleProfile = {
       stil,
       ton,
@@ -99,10 +95,9 @@ export default function StyleTest({ onComplete }) {
     };
 
     const existing = JSON.parse(localStorage.getItem("ego_profile") || "{}");
-localStorage.setItem(
-  "ego_profile",
-  JSON.stringify({ ...existing, styleProfile })
-);
+    const merged = { ...existing, styleProfile };
+
+    localStorage.setItem("ego_profile", JSON.stringify(merged));
     onComplete({ styleProfile });
   } catch (err) {
     console.error("Analysefehler:", err);
