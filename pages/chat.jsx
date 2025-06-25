@@ -82,6 +82,33 @@ useEffect(() => {
 
     const updated = [...messages, { role: "user", content: input }];
     setMessages(updated);
+    // Stimmung aus Nutzereingabe erkennen ↓↓↓
+const vocab = profile?.styleProfile?.contextualVocabulary || {};
+let detectedMood = null;
+
+const normalize = (str) =>
+  str.toLowerCase().replace(/[.,!?'"()\[\]{}:;–—\-]/g, "").trim();
+
+for (const moodKey of Object.keys(vocab)) {
+  for (const phrase of vocab[moodKey]) {
+    if (
+      normalize(input).includes(normalize(phrase)) ||
+      normalize(phrase).includes(normalize(input))
+    ) {
+      detectedMood = moodKey;
+      break;
+    }
+  }
+  if (detectedMood) break;
+}
+
+if (detectedMood) {
+  console.log("🎯 Stimmung (User) erkannt:", detectedMood);
+  setMood(detectedMood);
+} else {
+  console.log("😕 Keine Stimmung erkannt (User)");
+}
+// ↑↑↑ ENDE
     setInput("");
     setIsTyping(true);
 
