@@ -26,7 +26,12 @@ export default async function handler(req, res) {
   beispielAntwort: "...",      // kurze Beispielantwort im Stil der Person
   thinkingStyle: "...",        // Denkweise: rational, impulsiv, emotional …
   typicalPhrases: ["..."],     // Typische Satzanfänge wie "Ganz ehrlich …"
-  contextualVocabulary: {      // Stimmungsbezogene typische Phrasen
+  contextualVocabulary: {      // Stimmungstypische Phrasen im Stil der Person (aus Chat herausgefiltert oder stilistisch passend erfunden)
+  wütend: ["...", "..."],
+  traurig: ["...", "..."],
+  nachdenklich: ["...", "..."],
+  ironisch: ["...", "..."]
+}
     wütend: ["..."],
     traurig: ["..."],
     nachdenklich: ["..."],
