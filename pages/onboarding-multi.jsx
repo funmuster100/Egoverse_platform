@@ -147,7 +147,7 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
       }}>
         {isStyleTestStep ? (
          <StyleTest
-  onComplete={({ styleProfile, thinkingStyle, typicalPhrases, dialektBasis, dialektMischung, beispielAntwort, expressions }) => {
+  onComplete={({ styleProfile, thinkingStyle, typicalPhrases, dialektBasis, dialektMischung, beispielAntwort, expressions, contextualVocabulary }) => {
     const combinedStyleProfile = {
       styleProfile,
       thinkingStyle,
@@ -155,7 +155,8 @@ const [brandingColor, setBrandingColor] = useState("#00ff88"); // oder beliebige
       dialektBasis,
       dialektMischung,
       beispielAntwort,
-      expressions
+      expressions,
+      contextualVocabulary
     };
 
     const fullProfile = {
