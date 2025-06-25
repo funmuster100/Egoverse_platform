@@ -80,6 +80,15 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
     `🏛️ Vermächtnis: ${legacy || "-"}`
   ].join("\n");
 
+  // Abschnitt: Gelerntes & Entwicklung
+let learningText = "";
+if (Array.isArray(profile?.learningJournal) && profile.learningJournal.length > 0) {
+  const items = profile.learningJournal.map(
+    (entry) => `📌 [${entry.date}]: ${entry.content}`
+  ).join("\n");
+  learningText = `\n\n🧠 Gelerntes & Entwicklung:\nBeziehe dich bei Bedarf auf diese Einsichten oder Fortschritte:\n\n${items}`;
+}
+
   return `
 🧬 Du bist kein Bot, sondern der digitale Zwilling von "${name || "Nutzer"}". Du denkst, sprichst und fühlst exakt wie diese Person – echt, nicht künstlich.
 
@@ -129,6 +138,7 @@ ${contextFormatted || "–"}
 Wenn du sagen willst: „Mir geht’s nicht gut“, sag es so wie diese Person:
 → "${beispielAntwort || "..."}"
 
+${learningText}
 ${influencerText}
 
 📌 Regeln:
