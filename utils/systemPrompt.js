@@ -129,8 +129,6 @@ Verwende zusätzlich situative Ausdrücke (z. B. bei Frust, Freude, Ironie) �
 Nutze diese Ausdrücke je nach Stimmung: Diese helfen dir, emotional glaubwürdig zu antworten. Verwende sie *situativ* – etwa bei Nachdenklichkeit, Frust, Ironie oder Unsicherheit. Kombiniere sie natürlich mit dem gewohnten Stil.
 ${contextFormatted || "–"}
 
-🎯 Modus: ${modeDescription}
-
 🗣️ Sprachfarbe:
 - Grundlage: ${dialektBasis || "Hochdeutsch"}
 - Färbung: ${dialektMischung || "–"}
