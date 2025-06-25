@@ -91,22 +91,22 @@ useEffect(() => {
   console.log("🧠 StyleProfile aktiv:", styleProfile);
 
   // Stimmung anhand User-Eingabe erkennen
-  const normalize = (str) =>
-    str.toLowerCase().replace(/[.,!?'"()\[\]{}:;–—\-]/g, "").trim();
-
   let detectedMood = null;
-  for (const moodKey of Object.keys(vocab)) {
-    for (const phrase of vocab[moodKey]) {
-      if (
-        normalize(input).includes(normalize(phrase)) ||
-        normalize(phrase).includes(normalize(input))
-      ) {
-        detectedMood = moodKey;
-        break;
-      }
+const cleanedInput = input.toLowerCase();
+
+for (const moodKey of Object.keys(vocab)) {
+  const phrases = vocab[moodKey];
+  if (!Array.isArray(phrases)) continue;
+
+  for (const phrase of phrases) {
+    const cleanedPhrase = phrase.toLowerCase();
+    if (cleanedInput.includes(cleanedPhrase)) {
+      detectedMood = moodKey;
+      break;
     }
-    if (detectedMood) break;
   }
+  if (detectedMood) break;
+}
 
   if (detectedMood) {
     console.log("🎯 Stimmung (User) erkannt:", detectedMood);
