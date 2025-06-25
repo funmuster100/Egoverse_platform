@@ -57,6 +57,7 @@ export default function StyleTest({ onComplete }) {
       beispielAntwort,
       thinkingStyle,
       typicalPhrases,
+      contextualVocabulary
     } = data;
 
     const styleProfile = [stil, ton, dialektMischung].filter(Boolean);
