@@ -61,36 +61,32 @@ export default function StyleTest({ onComplete }) {
     } = data;
 
     const contextualVocabulary = {
-  nachdenklich: ["Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt."],
-  ironisch: ["Na super. Genau das hab ich gebraucht.", "Ironie off."],
-  traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
-  wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
-  euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
-      ...apiVocab // überschreibt oder ergänzt
-};
+      nachdenklich: ["Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt."],
+      ironisch: ["Na super. Genau das hab ich gebraucht.", "Ironie off."],
+      traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
+      wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
+      euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
+      ...apiVocab // optional
+    };
 
-const styleProfile = {
-  stil,
-  ton,
-  dialektMischung,
-  contextualVocabulary
-};
+    const styleProfile = {
+      stil,
+      ton,
+      dialektBasis,
+      dialektMischung,
+      contextualVocabulary,
+      expressions: Array.isArray(expressions)
+        ? expressions
+        : expressions?.split(",").map((s) => s.trim()) || [],
+      beispielAntwort,
+      thinkingStyle,
+      typicalPhrases: Array.isArray(typicalPhrases)
+        ? typicalPhrases
+        : typicalPhrases?.split(",").map((s) => s.trim()) || [],
+    };
 
-const result = {
-  styleProfile,
-  tone: ton,
-  dialect: dialektBasis,
-  expressions: Array.isArray(expressions)
-    ? expressions
-    : expressions?.split(",").map((s) => s.trim()) || [],
-  beispielAntwort,
-  thinkingStyle,
-  typicalPhrases: Array.isArray(typicalPhrases)
-    ? typicalPhrases
-    : typicalPhrases?.split(",").map((s) => s.trim()) || [],
-};
-localStorage.setItem("ego_profile", JSON.stringify(result));
-    onComplete(result);
+    localStorage.setItem("ego_profile", JSON.stringify({ styleProfile }));
+    onComplete({ styleProfile });
   } catch (err) {
     console.error("Analysefehler:", err);
     setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
@@ -99,7 +95,6 @@ localStorage.setItem("ego_profile", JSON.stringify(result));
     setLoading(false);
   }
 };
-
   return (
     <div style={{
       background: "rgba(255,255,255,0.05)",
