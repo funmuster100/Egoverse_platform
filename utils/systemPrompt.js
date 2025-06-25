@@ -38,6 +38,15 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     typicalPhrases = []
     contextualVocabulary = []
   } = styleProfile || {};
+  const contextPhrases = profile?.styleProfile?.contextualVocabulary || {};
+
+  const contextFormatted = Object.entries(contextPhrases)
+    .map(([k, v]) => `- ${k}: ${v.join(", ")}`)
+    .join("\n");
+
+  if (contextFormatted) {
+    prompt += `\n\n🎭 Kontext-Phrasen:\nNutze diese Ausdrücke je nach Stimmung:\n${contextFormatted}`;
+  }
 
   const safeExpressions = Array.isArray(expressions) ? expressions : [expressions].filter(Boolean);
   const safeTypicalPhrases = Array.isArray(typicalPhrases) ? typicalPhrases : [typicalPhrases].filter(Boolean);
