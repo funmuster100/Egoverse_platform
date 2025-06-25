@@ -16,7 +16,13 @@ export default function Chat() {
   const [darkMode, setDarkMode] = useState(false);
   const [brandingLogo, setBrandingLogo] = useState(null);
   const [brandingColor, setBrandingColor] = useState("#00ff88");
+const [mood, setMood] = useState(null);
 
+useEffect(() => {
+  if (!mood) return;
+  const timeout = setTimeout(() => setMood(null), 3000);
+  return () => clearTimeout(timeout);
+}, [mood]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -93,10 +99,19 @@ export default function Chat() {
     }
 
     const { reply } = await res.json();
-    setMessages([...updated, { role: "assistant", content: reply }]);
-    setIsTyping(false);
-    inputRef.current?.focus();
-  };
+  
+  // Stimmung aus contextualVocabulary erkennen
+  const vocab = profile?.contextualVocabulary || {};
+  const detectedMood = Object.keys(vocab).find((moodKey) =>
+    vocab[moodKey]?.some((phrase) => reply.includes(phrase))
+  );
+
+  if (detectedMood) setMood(detectedMood);
+
+  setMessages([...updated, { role: "assistant", content: reply }]);
+  setIsTyping(false);
+  inputRef.current?.focus();
+};
 
     const remember = (text) => {
     const egoProfile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
@@ -220,6 +235,11 @@ export default function Chat() {
         </div>
 
         <div className={styles["chat-mode-indicator"]}>
+          {mood && (
+  <div className={styles["mood-indicator"]}>
+    💭 Stimmung erkannt: <strong>{mood}</strong>
+  </div>
+)}
           Aktueller Modus: <strong>{mode}</strong>
         </div>
 
