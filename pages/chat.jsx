@@ -27,22 +27,31 @@ useEffect(() => {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const p = localStorage.getItem("ego_profile");
-    if (p) {
-      const parsed = JSON.parse(p);
-        if (parsed.styleProfile) {
-    console.log("Gelernter Stil:", parsed.styleProfile);
-  }
-        setProfile(parsed);
-      if (parsed.brandingLogo) setBrandingLogo(parsed.brandingLogo);
-      if (parsed.brandingColor) setBrandingColor(parsed.brandingColor);
-      if (parsed.mode) setMode(parsed.mode);
-      if (parsed.lang) setLang(parsed.lang);
+  const p = localStorage.getItem("ego_profile");
+  if (p) {
+    const parsed = JSON.parse(p);
+    if (parsed.styleProfile) {
+      console.log("Gelernter Stil:", parsed.styleProfile);
+      // 🛠️ Wichtig: direkte Übergabe des styleProfile an setProfile
+      setProfile((prev) => ({
+        ...prev,
+        ...parsed,
+        styleProfile: parsed.styleProfile // sicherstellen dass erhalten
+      }));
+    } else {
+      setProfile(parsed);
     }
-    const saved = localStorage.getItem("ego_chat_history");
-    if (saved) setMessages(JSON.parse(saved));
-    setDarkMode(document.documentElement.dataset.theme === "dark");
-  }, []);
+
+    if (parsed.brandingLogo) setBrandingLogo(parsed.brandingLogo);
+    if (parsed.brandingColor) setBrandingColor(parsed.brandingColor);
+    if (parsed.mode) setMode(parsed.mode);
+    if (parsed.lang) setLang(parsed.lang);
+  }
+
+  const saved = localStorage.getItem("ego_chat_history");
+  if (saved) setMessages(JSON.parse(saved));
+  setDarkMode(document.documentElement.dataset.theme === "dark");
+}, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
