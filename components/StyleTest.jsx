@@ -62,18 +62,25 @@ export default function StyleTest({ onComplete }) {
     const styleProfile = [stil, ton, dialektMischung].filter(Boolean);
 
     const result = {
-      styleProfile,
-      tone: ton,
-      dialect: dialektBasis,
-      expressions: Array.isArray(expressions)
-        ? expressions
-        : expressions?.split(",").map((s) => s.trim()) || [],
-      beispielAntwort,
-      thinkingStyle,
-      typicalPhrases: Array.isArray(typicalPhrases)
-        ? typicalPhrases
-        : typicalPhrases?.split(",").map((s) => s.trim()) || [],
-    };
+  styleProfile,
+  tone: ton,
+  dialect: dialektBasis,
+  expressions: Array.isArray(expressions)
+    ? expressions
+    : expressions?.split(",").map((s) => s.trim()) || [],
+  beispielAntwort,
+  thinkingStyle,
+  typicalPhrases: Array.isArray(typicalPhrases)
+    ? typicalPhrases
+    : typicalPhrases?.split(",").map((s) => s.trim()) || [],
+  contextualVocabulary: {
+    nachdenklich: ["Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt."],
+    ironisch: ["Na super. Genau das hab ich gebraucht.", "Ironie off."],
+    traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
+    wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
+    euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
+  }
+};
 
     onComplete(result);
   } catch (err) {
