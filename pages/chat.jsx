@@ -76,7 +76,7 @@ useEffect(() => {
     setInput("");
     setIsTyping(true);
 
-    const safeProfile = { ...profile };
+    const safeProfile = { ...profile, styleProfile: profile?.styleProfile || {}, };
     delete safeProfile.brandingLogo;
 
     const recent = updated.slice(-10);
