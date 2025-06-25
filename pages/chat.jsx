@@ -376,6 +376,37 @@ for (const moodKey of Object.keys(vocab)) {
           </div>
         </div>
       )}
+            {/* Debug: Stimmungsvokabular manuell setzen */}
+      {!mood && (
+        <div style={{ margin: "1rem", textAlign: "center" }}>
+          <button
+            style={{
+              padding: "10px 20px",
+              background: "#0f0",
+              color: "#000",
+              fontWeight: "bold",
+              borderRadius: "10px",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              const profile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
+              profile.styleProfile = profile.styleProfile || {};
+              profile.styleProfile.contextualVocabulary = {
+                wütend: ["regt mich richtig auf", "was soll der scheiß"],
+                euphorisch: ["mega", "geil", "yesss"],
+                traurig: ["macht mich traurig", "fühlt sich schwer an"],
+                ironisch: ["na super", "ironisch gemeint"],
+                nachdenklich: ["hm", "ich frag mich", "weiß nicht genau"]
+              };
+              localStorage.setItem("ego_profile", JSON.stringify(profile));
+              alert("Debug-Vokabular gesetzt ✅");
+            }}
+          >
+            🔧 Stimmungsvokabular setzen
+          </button>
+        </div>
+      )}
     </>
   );
 }
