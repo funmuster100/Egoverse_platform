@@ -279,7 +279,44 @@ for (const moodKey of Object.keys(vocab)) {
 )}
           Aktueller Modus: <strong>{mode}</strong>
         </div>
+<div style={{ padding: "1rem", textAlign: "center" }}>
+  <button
+    onClick={() => {
+      const p = JSON.parse(localStorage.getItem("ego_profile") || "{}");
+      const input = prompt("Test-Satz eingeben:");
+      const normalize = (str) =>
+        str.toLowerCase().replace(/[.,!?\"'()\[\]{}:;–—\-]/g, "").trim();
+      const vocab = p?.styleProfile?.contextualVocabulary || {};
 
+      let detected = null;
+      for (const moodKey of Object.keys(vocab)) {
+        for (const phrase of vocab[moodKey]) {
+          if (
+            normalize(input).includes(normalize(phrase)) ||
+            normalize(phrase).includes(normalize(input))
+          ) {
+            detected = moodKey;
+            break;
+          }
+        }
+        if (detected) break;
+      }
+
+      alert(detected ? `🎯 Stimmung erkannt: ${detected}` : "😕 Keine Stimmung erkannt");
+    }}
+    style={{
+      marginTop: "0.5rem",
+      background: "#444",
+      color: "#fff",
+      padding: "8px 16px",
+      borderRadius: "8px",
+      border: "none",
+      cursor: "pointer",
+    }}
+  >
+    🔍 Stimmung testen
+  </button>
+</div>
         {/* Messages */}
         <div className={styles["chat-messages"]}>
           {messages.map((m, i) => (
