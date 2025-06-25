@@ -98,18 +98,21 @@ useEffect(() => {
       return;
     }
 
-    const { reply } = await res.json();
-  // DEBUG
-console.log("Antwort vom Bot:", reply);
+const { reply } = await res.json();
+const replyText = reply?.text || "";
+
+// DEBUG
+console.log("Antwort vom Bot:", replyText);
 console.log("StyleProfile:", profile?.styleProfile);
 console.log("Kontext-Vokabular:", profile?.styleProfile?.contextualVocabulary);
-  // Stimmung aus contextualVocabulary erkennen
-  const vocab = profile?.styleProfile?.contextualVocabulary || {};
+
+// Stimmung aus contextualVocabulary erkennen
+const vocab = profile?.styleProfile?.contextualVocabulary || {};
 let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
   for (const phrase of vocab[moodKey]) {
-    if (reply.toLowerCase().includes(phrase.toLowerCase())) {
+    if (replyText.toLowerCase().includes(phrase.toLowerCase())) {
       detectedMood = moodKey;
       break;
     }
@@ -123,9 +126,10 @@ if (detectedMood) {
 } else {
   console.log("😕 Keine Stimmung erkannt");
 }
-  setMessages([...updated, { role: "assistant", content: reply }]);
-  setIsTyping(false);
-  inputRef.current?.focus();
+
+setMessages([...updated, { role: "assistant", content: replyText }]);
+setIsTyping(false);
+inputRef.current?.focus();
 };
 
     const remember = (text) => {
