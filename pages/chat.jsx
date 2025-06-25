@@ -105,15 +105,19 @@ console.log("Antwort vom Bot:", replyText);
 console.log("StyleProfile:", profile?.styleProfile);
 
 
-// Stimmung aus contextualVocabulary erkennen
+// Stimmung aus contextualVocabulary erkennen (robuste Prüfung)
 const vocab = profile?.styleProfile?.contextualVocabulary || {};
-   
 let detectedMood = null;
 
+const normalize = (str) =>
+  str.toLowerCase().replace(/[.,!?'"()\[\]{}:;–—\-]/g, "").trim();
+    
+console.log("🧠 Geladenes vocab:", vocab);
 for (const moodKey of Object.keys(vocab)) {
   for (const phrase of vocab[moodKey]) {
-    if (replyText.toLowerCase().includes(phrase.toLowerCase()) ||
-      phrase.toLowerCase().includes(replyText.toLowerCase())
+    if (
+      normalize(replyText).includes(normalize(phrase)) ||
+      normalize(phrase).includes(normalize(replyText))
     ) {
       detectedMood = moodKey;
       break;
