@@ -89,7 +89,7 @@ const result = {
     ? typicalPhrases
     : typicalPhrases?.split(",").map((s) => s.trim()) || [],
 };
-
+localStorage.setItem("ego_profile", JSON.stringify(result));
     onComplete(result);
   } catch (err) {
     console.error("Analysefehler:", err);
