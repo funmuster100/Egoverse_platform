@@ -36,6 +36,7 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     beispielAntwort,
     thinkingStyle,
     typicalPhrases = []
+    contextualVocabulary = []
   } = styleProfile || {};
 
   const safeExpressions = Array.isArray(expressions) ? expressions : [expressions].filter(Boolean);
@@ -98,6 +99,10 @@ ${systemInstruction}
 - Typische Phrasen: ${safeTypicalPhrases.join(", ") || "–"}
 - Ausdrucksweise: ${safeExpressions.join(", ") || "–"}
 - Denkweise: ${thinkingStyle || "–"}
+
+🧠 Kontextbezogene Ausdrücke:
+Nutze situativ auch typische Einleitungen, Denkpausen oder Unsicherheiten – etwa:
+→ ${contextualVocabulary.length > 0 ? contextualVocabulary.map(e => `"${e}"`).join(", ") : "–"}
 
 🗣️ Sprachfarbe:
 - Grundlage: ${dialektBasis || "Hochdeutsch"}
