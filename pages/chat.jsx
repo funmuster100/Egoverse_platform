@@ -111,10 +111,7 @@ let detectedMood = null;
 
 for (const moodKey of Object.keys(vocab)) {
   for (const phrase of vocab[moodKey]) {
-   if (
-  replyText.toLowerCase().includes(phrase.toLowerCase()) ||
-  phrase.toLowerCase().includes(replyText.toLowerCase())
-)  {
+    if (replyText.toLowerCase().includes(phrase.toLowerCase())) {
       detectedMood = moodKey;
       break;
     }
@@ -128,7 +125,6 @@ if (detectedMood) {
 } else {
   console.log("😕 Keine Stimmung erkannt");
 }
-
 setMessages([...updated, { role: "assistant", content: replyText }]);
 setIsTyping(false);
 inputRef.current?.focus();
