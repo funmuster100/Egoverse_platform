@@ -99,15 +99,30 @@ useEffect(() => {
     }
 
     const { reply } = await res.json();
-  
+  // DEBUG
+console.log("Antwort vom Bot:", reply);
+console.log("StyleProfile:", profile?.styleProfile);
+console.log("Kontext-Vokabular:", profile?.styleProfile?.contextualVocabulary);
   // Stimmung aus contextualVocabulary erkennen
   const vocab = profile?.styleProfile?.contextualVocabulary || {};
-  const detectedMood = Object.keys(vocab).find((moodKey) =>
-    vocab[moodKey]?.some((phrase) => reply.includes(phrase))
-  );
+let detectedMood = null;
 
-  if (detectedMood) setMood(detectedMood);
+for (const moodKey of Object.keys(vocab)) {
+  for (const phrase of vocab[moodKey]) {
+    if (reply.toLowerCase().includes(phrase.toLowerCase())) {
+      detectedMood = moodKey;
+      break;
+    }
+  }
+  if (detectedMood) break;
+}
 
+if (detectedMood) {
+  console.log("🎯 Stimmung erkannt:", detectedMood);
+  setMood(detectedMood);
+} else {
+  console.log("😕 Keine Stimmung erkannt");
+}
   setMessages([...updated, { role: "assistant", content: reply }]);
   setIsTyping(false);
   inputRef.current?.focus();
