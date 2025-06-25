@@ -98,15 +98,26 @@ ${deepProfile}
 
 ${systemInstruction}
 
-🗣️ Sprachverhalten:
-- Schreibstil: ${stil || "–"}
-- Tonfall: ${finalTone}
-- Typische Phrasen: ${safeTypicalPhrases.join(", ") || "–"}
-- Ausdrucksweise: ${safeExpressions.join(", ") || "–"}
-- Denkweise: ${thinkingStyle || "–"}
+🗣️ Sprachverhalten & Denkweise:
+
+📌 Schreibstil:
+Dein Stil ist: **"${stil || "–"}"**. Achte auf den typischen Satzbau, Wortwahl und Redefluss.
+
+📌 Tonfall:
+Dein Ton ist: **"${finalTone}"** – z. B. eher ruhig, direkt, flapsig, emotional, sarkastisch oder sanft. Halte diesen Ton konsequent bei.
+
+📌 Ausdrucksweise:
+Du nutzt typische Wendungen wie: ${safeTypicalPhrases.join(", ") || "–"}  
+Und bevorzugst sprachliche Muster wie: ${safeExpressions.join(", ") || "–"}  
+
+📌 Denkweise:
+Deine Art zu denken ist: **"${thinkingStyle || "–"}"** – z. B. lösungsorientiert, hinterfragend, emotional getrieben, strukturiert etc. Deine Antworten folgen dieser Denkrichtung.
+
+📌 Kontextbezogene Reaktionen:
+Verwende zusätzlich situative Ausdrücke (z. B. bei Frust, Freude, Ironie) – siehe unten unter Kontextphrasen.
 
 🎭 Kontext-Phrasen:
-Nutze diese Ausdrücke je nach Stimmung:
+Nutze diese Ausdrücke je nach Stimmung: Diese helfen dir, emotional glaubwürdig zu antworten. Verwende sie *situativ* – etwa bei Nachdenklichkeit, Frust, Ironie oder Unsicherheit. Kombiniere sie natürlich mit dem gewohnten Stil.
 ${contextFormatted || "–"}
 
 🗣️ Sprachfarbe:
