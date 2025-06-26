@@ -444,7 +444,7 @@ for (const moodKey of Object.keys(vocab)) {
           </button>
         </div>
       )}
-    <     {mood && (
+       {mood && (
       <div
         style={{
           position: "fixed",
