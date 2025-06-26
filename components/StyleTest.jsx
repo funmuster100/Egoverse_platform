@@ -38,61 +38,60 @@ export default function StyleTest({ onComplete }) {
   };
 
   const analyzeStyle = async (answers) => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/analyze-style", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatText: answers.join("\n") }),
-      });
+  setLoading(true);
+  try {
+    const res = await fetch("/api/analyze-style", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatText: answers.join("\n") }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      const {
-        stil,
-        ton,
-        dialektBasis,
-        dialektMischung,
-        expressions,
-        beispielAntwort,
-        thinkingStyle,
-        typicalPhrases,
-        contextualVocabulary: apiVocab
-      } = data;
+    const {
+      stil,
+      ton,
+      dialektBasis,
+      dialektMischung,
+      expressions,
+      beispielAntwort,
+      thinkingStyle,
+      typicalPhrases,
+      contextualVocabulary
+    } = data;
 
-      // ✅ Nur GPT-Vokabular übernehmen, kein Fallback
-      const contextualVocabulary =
-        apiVocab && typeof apiVocab === "object" ? apiVocab : {};
+    const styleProfile = [stil, ton, dialektMischung].filter(Boolean);
 
-      const styleProfile = {
-        stil,
-        ton,
-        dialektBasis,
-        dialektMischung,
-        contextualVocabulary,
-        expressions: Array.isArray(expressions)
-          ? expressions
-          : expressions?.split(",").map((s) => s.trim()) || [],
-        beispielAntwort,
-        thinkingStyle,
-        typicalPhrases: Array.isArray(typicalPhrases)
-          ? typicalPhrases
-          : typicalPhrases?.split(",").map((s) => s.trim()) || [],
-      };
+    const result = {
+  styleProfile,
+  tone: ton,
+  dialect: dialektBasis,
+  expressions: Array.isArray(expressions)
+    ? expressions
+    : expressions?.split(",").map((s) => s.trim()) || [],
+  beispielAntwort,
+  thinkingStyle,
+  typicalPhrases: Array.isArray(typicalPhrases)
+    ? typicalPhrases
+    : typicalPhrases?.split(",").map((s) => s.trim()) || [],
+  contextualVocabulary: {
+    nachdenklich: ["Hm...", "Ich frag mich grad...", "Weißt du, das beschäftigt mich echt."],
+    ironisch: ["Na super. Genau das hab ich gebraucht.", "Ironie off."],
+    traurig: ["Das macht mich ehrlich traurig.", "Fühlt sich grad schwer an."],
+    wütend: ["Boah, das regt mich richtig auf!", "Was soll der Scheiß bitte?"],
+    euphorisch: ["Yesss!", "Mega!", "Geil, das fühl ich total!"],
+  }
+};
 
-      const existing = JSON.parse(localStorage.getItem("ego_profile") || "{}");
-      const merged = { ...existing, styleProfile };
-
-      localStorage.setItem("ego_profile", JSON.stringify(merged));
-      onComplete({ merged });
-    } catch (err) {
-      console.error("Analysefehler:", err);
-      setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
-      onComplete({});
-    } finally {
-      setLoading(false);
-    }
-  };
+    onComplete(result);
+  } catch (err) {
+    console.error("Analysefehler:", err);
+    setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
+    onComplete({});
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={{
