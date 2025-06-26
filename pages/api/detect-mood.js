@@ -12,11 +12,12 @@ export default async function handler(req, res) {
   }
 
   const { text } = req.body;
+console.log("REQ BODY:", req.body);
 
-  if (!text || typeof text !== "string") {
-    return res.status(400).json({ error: "Kein gültiger Text" });
-  }
-
+  if (!text || typeof text !== "string" || text.trim().length < 1) {
+  console.warn("🚨 Ungültiger Text:", text);
+  return res.status(400).json({ error: "Kein gültiger Text" });
+}
   try {
     const allowedMoods = [
       "wütend",
