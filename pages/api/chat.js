@@ -1,4 +1,5 @@
-
+console.log("🧠 SystemPrompt:", systemPrompt);
+console.log("🎯 Profile:", JSON.stringify(profile?.styleProfile, null, 2));
 import OpenAI from "openai";
 import { createSystemPrompt } from "../../utils/systemPrompt";
 
