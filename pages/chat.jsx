@@ -141,7 +141,7 @@ for (const moodKey of Object.keys(vocab)) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      profile: safeProfile,
+      profile: { ...safeProfile, currentMood: mood },
       mode,
       lang,
       messages: recent,
