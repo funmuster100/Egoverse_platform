@@ -16,6 +16,7 @@ export default async function handler(req, res) {
 
   try {
     // voller System-Prompt
+    const mood = profile?.currentMood || null;
     const systemPrompt = createSystemPrompt(profile, mode, lang);
 
     // kombiniere system + Verlauf
