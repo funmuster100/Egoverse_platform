@@ -25,7 +25,7 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     brandingColor,
     brandingLogo,
     styleProfile = {},
-    currentMood // Stimmung wird hier übergeben
+    currentMood
   } = profile || {};
 
   const {
@@ -49,16 +49,8 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
     .join("\n");
 
-  const moodInstructions = {
-    wütend: "Der Nutzer wirkt gerade **wütend**. Sprich direkter, genervter, ohne Beschönigung.",
-    traurig: "Der Nutzer ist **traurig**. Sprich mitfühlend, ruhig, verständnisvoll.",
-    euphorisch: "Der Nutzer ist **euphorisch**. Sprich lebendig, begeistert, mit Energie.",
-    nachdenklich: "Der Nutzer ist **nachdenklich**. Sprich reflektierend, ruhig, abwägend.",
-    ironisch: "Der Nutzer ist **ironisch**. Sprich mit trockenem Humor oder feiner Ironie.",
-  };
-
-  const moodText = currentMood && moodInstructions[currentMood]
-    ? `\n🌀 Stimmung aktuell:\n${moodInstructions[currentMood]}\n`
+  const moodText = currentMood
+    ? `🌀 Stimmung aktuell: ${currentMood}`
     : "";
 
   const modes = {
@@ -118,6 +110,17 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
 ${deepProfile}
 
 ${systemInstruction}
+
+🧠 Aktuelle Stimmung:
+Falls du erkennst, dass die aktuelle Nachricht wütend, traurig, ironisch oder euphorisch klingt:
+→ Antworte so, **wie diese Person in genau dieser Stimmung sprechen würde**.
+
+Nutze dabei:
+- Den bekannten Stil dieser Person (Satzbau, Wortwahl, Tonfall)
+- Die typischen Kontextphrasen für diese Stimmung (siehe unten)
+- Emotionale Färbung, wie sie **diese Person in dieser Stimmung** verwenden würde
+
+‼️ Wichtig: Reagiere **nicht generisch oder therapeutisch** – sondern glaubwürdig, emotional und echt. Wenn diese Person fluchen, provozieren oder lachen würde – tu das auch.
 
 🗣️ Sprachverhalten & Denkweise:
 
