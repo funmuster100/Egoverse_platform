@@ -37,76 +37,63 @@ export default function StyleTest({ onComplete }) {
     }
   };
 
-const analyzeStyle = async (answers) => {
-  setLoading(true);
-  try {
-    const res = await fetch("/api/analyze-style", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatText: answers.join("\n") }),
-    });
+  const analyzeStyle = async (answers) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/analyze-style", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatText: answers.join("\n") }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    const {
-      stil,
-      ton,
-      dialektBasis,
-      dialektMischung,
-      expressions,
-      beispielAntwort,
-      thinkingStyle,
-      typicalPhrases,
-      contextualVocabulary: apiVocab
-    } = data;
+      const {
+        stil,
+        ton,
+        dialektBasis,
+        dialektMischung,
+        expressions,
+        beispielAntwort,
+        thinkingStyle,
+        typicalPhrases,
+        contextualVocabulary: apiVocab
+      } = data;
 
-    // 🛠️ Fallback-Vokabular
-    const fallbackVocabulary = {
-      wütend: ["regt mich richtig auf", "was soll der scheiß"],
-      euphorisch: ["mega", "geil", "yesss"],
-      traurig: ["macht mich traurig", "fühlt sich schwer an"],
-      ironisch: ["na super", "ironisch gemeint"],
-      nachdenklich: ["hm", "ich frag mich", "weiß nicht genau"]
-    };
+      // ✅ Nur GPT-Vokabular übernehmen, kein Fallback
+      const contextualVocabulary =
+        apiVocab && typeof apiVocab === "object" ? apiVocab : {};
 
-    // 🔀 Mischen: API-Werte + Fallback
-    const contextualVocabulary = {};
-    for (const key of Object.keys(fallbackVocabulary)) {
-      contextualVocabulary[key] = [
-        ...fallbackVocabulary[key],
-        ...(apiVocab?.[key] || [])
-      ];
+      const styleProfile = {
+        stil,
+        ton,
+        dialektBasis,
+        dialektMischung,
+        contextualVocabulary,
+        expressions: Array.isArray(expressions)
+          ? expressions
+          : expressions?.split(",").map((s) => s.trim()) || [],
+        beispielAntwort,
+        thinkingStyle,
+        typicalPhrases: Array.isArray(typicalPhrases)
+          ? typicalPhrases
+          : typicalPhrases?.split(",").map((s) => s.trim()) || [],
+      };
+
+      const existing = JSON.parse(localStorage.getItem("ego_profile") || "{}");
+      const merged = { ...existing, styleProfile };
+
+      localStorage.setItem("ego_profile", JSON.stringify(merged));
+      onComplete({ styleProfile });
+    } catch (err) {
+      console.error("Analysefehler:", err);
+      setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
+      onComplete({});
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const styleProfile = {
-      stil,
-      ton,
-      dialektBasis,
-      dialektMischung,
-      contextualVocabulary,
-      expressions: Array.isArray(expressions)
-        ? expressions
-        : expressions?.split(",").map((s) => s.trim()) || [],
-      beispielAntwort,
-      thinkingStyle,
-      typicalPhrases: Array.isArray(typicalPhrases)
-        ? typicalPhrases
-        : typicalPhrases?.split(",").map((s) => s.trim()) || [],
-    };
-
-    const existing = JSON.parse(localStorage.getItem("ego_profile") || "{}");
-    const merged = { ...existing, styleProfile };
-
-    localStorage.setItem("ego_profile", JSON.stringify(merged));
-    onComplete({ styleProfile });
-  } catch (err) {
-    console.error("Analysefehler:", err);
-    setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
-    onComplete({});
-  } finally {
-    setLoading(false);
-  }
-};
   return (
     <div style={{
       background: "rgba(255,255,255,0.05)",
