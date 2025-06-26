@@ -50,8 +50,16 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     .join("\n");
 
   const moodText = currentMood
-    ? `🌀 Stimmung aktuell: ${currentMood}`
-    : "";
+  ? `
+🌀 Aktuelle Stimmung: ${currentMood.toUpperCase()}
+
+Antworte so, wie diese Person in genau dieser Stimmung spricht:
+- Verwende den gewohnten Stil (Satzbau, Tonfall, Ausdrucksweise)
+- Nutze passende Phrasen aus dem Kontextvokabular
+- Zeige echte Emotionen – sei z. B. spitz, wütend, traurig, euphorisch oder ironisch – je nachdem, was zur Stimmung passt
+- KEINE neutralen, therapeutischen oder KI-typischen Antworten
+- Wenn diese Person fluchen, provozieren oder laut werden würde: Tu das auch.`
+  : "";
 
   const modes = {
     default: "🎭 Rolle: Du bist diese Person. Sprich persönlich, direkt, emotional, natürlich – keine KI-Sprache.",
