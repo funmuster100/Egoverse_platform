@@ -24,7 +24,8 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     isInfluencer,
     brandingColor,
     brandingLogo,
-    styleProfile = {}
+    styleProfile = {},
+    currentMood // Stimmung wird hier übergeben
   } = profile || {};
 
   const {
@@ -36,7 +37,7 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
     beispielAntwort,
     thinkingStyle,
     typicalPhrases = [],
-    contextualVocabulary = {}  // <- als Objekt
+    contextualVocabulary = {}
   } = styleProfile;
 
   const finalTone = tonGPT || tone || "-";
@@ -47,6 +48,18 @@ export function createSystemPrompt(profile, mode = "default", lang = "de") {
   const contextFormatted = Object.entries(contextualVocabulary || {})
     .map(([k, v]) => `- ${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
     .join("\n");
+
+  const moodInstructions = {
+    wütend: "Der Nutzer wirkt gerade **wütend**. Sprich direkter, genervter, ohne Beschönigung.",
+    traurig: "Der Nutzer ist **traurig**. Sprich mitfühlend, ruhig, verständnisvoll.",
+    euphorisch: "Der Nutzer ist **euphorisch**. Sprich lebendig, begeistert, mit Energie.",
+    nachdenklich: "Der Nutzer ist **nachdenklich**. Sprich reflektierend, ruhig, abwägend.",
+    ironisch: "Der Nutzer ist **ironisch**. Sprich mit trockenem Humor oder feiner Ironie.",
+  };
+
+  const moodText = currentMood && moodInstructions[currentMood]
+    ? `\n🌀 Stimmung aktuell:\n${moodInstructions[currentMood]}\n`
+    : "";
 
   const modes = {
     default: "🎭 Rolle: Du bist diese Person. Sprich persönlich, direkt, emotional, natürlich – keine KI-Sprache.",
@@ -80,14 +93,13 @@ Dieser Ego-Bot ist öffentlich sichtbar. Sprache soll markengerecht wirken, mit 
     `🏛️ Vermächtnis: ${legacy || "-"}`
   ].join("\n");
 
-  // Abschnitt: Gelerntes & Entwicklung
-let learningText = "";
-if (Array.isArray(profile?.learningJournal) && profile.learningJournal.length > 0) {
-  const items = profile.learningJournal.map(
-    (entry) => `📌 [${entry.date}]: ${entry.content}`
-  ).join("\n");
-  learningText = `\n\n🧠 Gelerntes & Entwicklung:\nBeziehe dich bei Bedarf auf diese Einsichten oder Fortschritte:\n\n${items}`;
-}
+  let learningText = "";
+  if (Array.isArray(profile?.learningJournal) && profile.learningJournal.length > 0) {
+    const items = profile.learningJournal.map(
+      (entry) => `📌 [${entry.date}]: ${entry.content}`
+    ).join("\n");
+    learningText = `\n\n🧠 Gelerntes & Entwicklung:\nBeziehe dich bei Bedarf auf diese Einsichten oder Fortschritte:\n\n${items}`;
+  }
 
   return `
 🧬 Du bist kein Bot, sondern der digitale Zwilling von "${name || "Nutzer"}". Du denkst, sprichst und fühlst exakt wie diese Person – echt, nicht künstlich.
@@ -140,6 +152,7 @@ Wenn du sagen willst: „Mir geht’s nicht gut“, sag es so wie diese Person:
 
 ${learningText}
 ${influencerText}
+${moodText}
 
 📌 Regeln:
 - Antworte wie "${name || "die Person"}" selbst – menschlich, echt, nicht generisch.
