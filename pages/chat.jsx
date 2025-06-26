@@ -62,63 +62,75 @@ export default function Chat() {
     html.dataset.theme = next;
   };
 
-  const send = async () => {
-    if (!input.trim()) return;
+  // ⬇︎ Chat.jsx  –  ersetze deine bisherige send()-Funktion komplett
+const send = async () => {
+  if (!input.trim()) return;
 
-    const updated = [...messages, { role: "user", content: input }];
-    setMessages(updated);
+  const updated = [...messages, { role: "user", content: input }];
+  setMessages(updated);
 
-    const currentProfile = profile || JSON.parse(localStorage.getItem("ego_profile") || "{}");
-    const styleProfile = currentProfile?.styleProfile || {};
+  // 🧩 Profil & Style sichern
+  const storedProfile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
+  const currentProfile = profile || storedProfile || {};
 
-    let detectedMood = null;
-    try {
-      const gptRes = await fetch("/api/detect-mood", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input }),
-      });
-      const gptData = await gptRes.json();
-      if (gptData.mood) {
-        detectedMood = gptData.mood;
-        console.log("🎯 Stimmung (GPT):", detectedMood);
-        setMood(detectedMood);
-      }
-    } catch (err) {
-      console.error("Fehler bei GPT-Stimmungserkennung:", err);
+  // ► StyleProfile aus localStorage holen, wenn im State (noch) leer
+  if (
+    !currentProfile.styleProfile ||
+    Object.keys(currentProfile.styleProfile).length === 0
+  ) {
+    if (storedProfile.styleProfile) {
+      currentProfile.styleProfile = storedProfile.styleProfile;
     }
+  }
 
-    setInput("");
-    setIsTyping(true);
-
-    const safeProfile = { ...(currentProfile || {}), styleProfile };
-    delete safeProfile.brandingLogo;
-
-    const recent = updated.slice(-10);
-
-    const res = await fetch("/api/chat", {
+  // 🌀 Stimmung per GPT-API ermitteln
+  let detectedMood = null;
+  try {
+    const gptRes = await fetch("/api/detect-mood", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profile: { ...safeProfile, currentMood: detectedMood },
-        mode,
-        lang,
-        messages: recent,
-      }),
+      body: JSON.stringify({ text: input }),
     });
-
-    if (!res.ok) {
-      console.error("Chat API Error:", await res.text());
-      setIsTyping(false);
-      return;
+    const gptData = await gptRes.json();
+    if (gptData.mood) {
+      detectedMood = gptData.mood;
+      setMood(detectedMood);
+      console.log("🎯 Stimmung (GPT):", detectedMood);
     }
+  } catch (err) {
+    console.error("Fehler bei GPT-Stimmungserkennung:", err);
+  }
 
-    const { reply } = await res.json();
-    setMessages([...updated, { role: "assistant", content: reply }]);
+  setInput("");
+  setIsTyping(true);
+
+  // 👀 Debug-Log, um sicherzustellen, dass Stil-Daten vorhanden sind
+  console.log("✅ Gesendetes Profil:", currentProfile);
+
+  const recent = updated.slice(-10);
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      profile: { ...currentProfile, currentMood: detectedMood },
+      mode,
+      lang,
+      messages: recent,
+    }),
+  });
+
+  if (!res.ok) {
+    console.error("Chat API Error:", await res.text());
     setIsTyping(false);
-    inputRef.current?.focus();
-  };
+    return;
+  }
 
+  const { reply } = await res.json();
+  setMessages([...updated, { role: "assistant", content: reply }]);
+  setIsTyping(false);
+  inputRef.current?.focus();
+};
   const remember = (text) => {
     const egoProfile = JSON.parse(localStorage.getItem("ego_profile") || "{}");
     if (!egoProfile.learningJournal) egoProfile.learningJournal = [];
