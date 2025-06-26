@@ -1,5 +1,4 @@
-console.log("🧠 SystemPrompt:", systemPrompt);
-console.log("🎯 Profile:", JSON.stringify(profile?.styleProfile, null, 2));
+
 import OpenAI from "openai";
 import { createSystemPrompt } from "../../utils/systemPrompt";
 
@@ -19,7 +18,8 @@ export default async function handler(req, res) {
     // voller System-Prompt
     const mood = profile?.currentMood || null;
     const systemPrompt = createSystemPrompt(profile, mode, lang);
-
+console.log("🧠 SystemPrompt:", systemPrompt);
+console.log("🎯 Profile:", JSON.stringify(profile?.styleProfile, null, 2));
     // kombiniere system + Verlauf
     const chatMessages = [
       { role: "system", content: systemPrompt },
