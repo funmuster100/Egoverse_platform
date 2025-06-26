@@ -119,6 +119,7 @@ ${deepProfile}
 
 ${systemInstruction}
 
+${!currentMood ? `
 🧠 Aktuelle Stimmung:
 Falls du erkennst, dass die aktuelle Nachricht wütend, traurig, ironisch oder euphorisch klingt:
 → Antworte so, **wie diese Person in genau dieser Stimmung sprechen würde**.
