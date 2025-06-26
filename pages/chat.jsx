@@ -16,6 +16,7 @@ export default function Chat() {
   const [mood, setMood] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     if (!mood) return;
