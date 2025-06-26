@@ -132,7 +132,10 @@ for (const moodKey of Object.keys(vocab)) {
   setInput("");
   setIsTyping(true);
 
-  const safeProfile = { ...currentProfile, styleProfile };
+  const safeProfile = {
+  ...(currentProfile || {}),
+  styleProfile: currentProfile?.styleProfile || styleProfile || {}
+};
   delete safeProfile.brandingLogo;
 
   const recent = updated.slice(-10);
