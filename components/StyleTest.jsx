@@ -84,7 +84,7 @@ export default function StyleTest({ onComplete }) {
       const merged = { ...existing, styleProfile };
 
       localStorage.setItem("ego_profile", JSON.stringify(merged));
-      onComplete({ styleProfile });
+      onComplete({ merged });
     } catch (err) {
       console.error("Analysefehler:", err);
       setError("Analyse fehlgeschlagen. Bitte versuch es später nochmal.");
