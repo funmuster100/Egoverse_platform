@@ -108,11 +108,25 @@ for (const moodKey of Object.keys(vocab)) {
   if (detectedMood) break;
 }
 
-  if (detectedMood) {
+    if (detectedMood) {
     console.log("🎯 Stimmung (User) erkannt:", detectedMood);
     setMood(detectedMood);
   } else {
-    console.log("😕 Keine Stimmung erkannt (User)");
+    console.log("😕 Keine Stimmung erkannt (lokal), frage GPT...");
+    try {
+      const gptRes = await fetch("/api/detect-mood", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input }),
+      });
+      const gptData = await gptRes.json();
+      if (gptData.mood) {
+        console.log("🎯 Stimmung (GPT):", gptData.mood);
+        setMood(gptData.mood);
+      }
+    } catch (err) {
+      console.error("Fehler bei GPT-Stimmungserkennung:", err);
+    }
   }
 
   setInput("");
