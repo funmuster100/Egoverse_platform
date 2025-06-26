@@ -444,6 +444,26 @@ for (const moodKey of Object.keys(vocab)) {
           </button>
         </div>
       )}
-    </>
-  );
+    <     {mood && (
+      <div
+        style={{
+          position: "fixed",
+          bottom: "90px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#1e1e1e",
+          color: "#fff",
+          padding: "10px 18px",
+          borderRadius: "14px",
+          fontSize: "1rem",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          zIndex: 9999,
+        }}
+      >
+        💭 Stimmung erkannt: <strong>{mood}</strong>
+      </div>
+    )}
+  </>
+);
 }
+
